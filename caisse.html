@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs. B - Ma Caisse</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-container-dash">
+                <img src="IMG_1959.jpg" alt="Logo Mrs. B" class="logo-sidebar">
+                <p>MA SESSION</p>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li class="nav-item active"><a href="caisse.html">Ma Synthèse</a></li>
+                    <li class="nav-item" id="openSaleModalLink"><a href="#">Saisie Vente</a></li> 
+                    <li class="nav-item" id="openTransactionHistory"><a href="#">Mon Historique</a></li>
+                    <li class="nav-separator"></li>
+                    <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header-bar">
+                <h1 id="welcomeTitle">Chargement de votre profil...</h1>
+            </header>
+
+            <section class="kpi-grid">
+                <div class="kpi-card kpi-daily">
+                    <h3>Mes Ventes (Jour)</h3>
+                    <p id="kpi-daily-sales">0 F</p>
+                </div>
+                <div class="kpi-card kpi-weekly">
+                    <h3>Mes Transactions</h3>
+                    <p id="kpi-daily-transactions">0</p>
+                </div>
+                <div class="kpi-card kpi-monthly">
+                    <h3>Mes Ventes (Mois)</h3>
+                    <p id="kpi-monthly-sales">0 F</p>
+                </div>
+            </section>
+            
+            <section class="dashboard-charts-grid">
+                <div class="chart-block full-width">
+                    <h2>Mes Dernières Ventes</h2>
+                    <div id="recentSalesList" class="data-table-section">
+                        <p>Initialisation...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="saleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button sale-close-button">&times;</span>
+            <h3>Enregistrer une Vente</h3>
+            <form id="addSaleForm">
+                <label>Catégorie :</label>
+                <select id="saleCategory" required></select>
+                <label>Service :</label>
+                <div id="productInputContainer">
+                    <select id="saleProduct" required></select>
+                    <input type="text" id="manualProductName" style="display:none;" placeholder="Nom du service">
+                </div>
+                <label>Montant (FCFA) :</label>
+                <input type="number" id="saleAmount" required disabled>
+                <label>Mode de Paiement :</label>
+                <select id="paymentMethod" required>
+                    <option value="Cash">Cash</option>
+                    <option value="Mobile Money">Mobile Money</option>
+                </select>
+                <button type="submit" class="btn-primary">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close-button history-close-button">&times;</span>
+            <h3>Mon Historique de Ventes</h3>
+            <div id="fullHistoryList" class="data-table-section" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+                <p>Chargement de l'historique...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDG0GUDkf-suk_NQcGBQWQPDnOosdC21ew",
+            authDomain: "mrsb-15e64.firebaseapp.com",
+            projectId: "mrsb-15e64",
+            storageBucket: "mrsb-15e64.firebasestorage.app",
+            messagingSenderId: "572569813990",
+            appId: "1:572569813990:web:16366aac2bd2f49a7ccc27"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const MANUAL_CATS = ["Coiffures Femme", "Soins de Visage"];
+        const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+        const MONTH = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+        // --- GESTION DES MODALES ---
+        const sModal = document.getElementById('saleModal');
+        const hModal = document.getElementById('historyModal');
+
+        document.getElementById('openSaleModalLink').onclick = () => { sModal.style.display = 'block'; loadCategories(); };
+        
+        // Action du bouton Historique
+        document.getElementById('openTransactionHistory').onclick = () => { 
+            hModal.style.display = 'block'; 
+            loadTransactionHistory(); 
+        };
+
+        // Fermeture des modales
+        document.querySelector('.sale-close-button').onclick = () => sModal.style.display = 'none';
+        document.querySelector('.history-close-button').onclick = () => hModal.style.display = 'none';
+        window.onclick = (event) => {
+            if (event.target == sModal) sModal.style.display = "none";
+            if (event.target == hModal) hModal.style.display = "none";
+        };
+
+        // --- CHARGEMENT DES DONNÉES TABLEAU DE BORD ---
+        async function loadMyData() {
+            const uid = auth.currentUser.uid;
+            let dTotal = 0, dCount = 0, mTotal = 0, recent = [];
+
+            try {
+                const snap = await db.collection('sales')
+                                     .where('cashierId', '==', uid)
+                                     .orderBy('createdAt', 'desc')
+                                     .get();
+                
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.createdAt ? data.createdAt.toDate() : new Date();
+                    if (date >= MONTH) mTotal += data.amount;
+                    if (date >= TODAY) {
+                        dTotal += data.amount;
+                        dCount++;
+                        if (recent.length < 10) recent.push(data);
+                    }
+                });
+
+                document.getElementById('kpi-daily-sales').innerText = dTotal.toLocaleString() + " F";
+                document.getElementById('kpi-daily-transactions').innerText = dCount;
+                document.getElementById('kpi-monthly-sales').innerText = mTotal.toLocaleString() + " F";
+                renderTable(recent);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('recentSalesList').innerHTML = `<p style="color:red">Erreur d'indexation. Vérifiez la console.</p>`;
+            }
+        }
+
+        // --- CHARGEMENT DE L'HISTORIQUE COMPLET (Fonction ajoutée) ---
+        async function loadTransactionHistory() {
+            const container = document.getElementById('fullHistoryList');
+            container.innerHTML = "<p>Chargement...</p>";
+            const uid = auth.currentUser.uid;
+
+            try {
+                const snap = await db.collection('sales')
+                                     .where('cashierId', '==', uid)
+                                     .orderBy('createdAt', 'desc')
+                                     .get();
+
+                if (snap.empty) {
+                    container.innerHTML = "<p>Aucune transaction trouvée.</p>";
+                    return;
+                }
+
+                let html = '<table class="data-table"><thead><tr><th>Date</th><th>Service</th><th>Montant</th><th>Paiement</th></tr></thead><tbody>';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const dateStr = d.createdAt ? d.createdAt.toDate().toLocaleDateString('fr-FR') : '--';
+                    html += `<tr>
+                        <td>${dateStr}</td>
+                        <td>${d.product}</td>
+                        <td>${d.amount.toLocaleString()} F</td>
+                        <td>${d.paymentMethod}</td>
+                    </tr>`;
+                });
+                container.innerHTML = html + '</tbody></table>';
+            } catch (err) {
+                container.innerHTML = `<p style="color:red">Erreur : ${err.message}</p>`;
+            }
+        }
+
+        function renderTable(sales) {
+            const container = document.getElementById('recentSalesList');
+            if (sales.length === 0) { container.innerHTML = "Aucune vente aujourd'hui."; return; }
+            let html = '<table class="data-table"><thead><tr><th>Heure</th><th>Service</th><th>Montant</th></tr></thead><tbody>';
+            sales.forEach(s => {
+                const time = s.createdAt ? s.createdAt.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--';
+                html += `<tr><td>${time}</td><td>${s.product}</td><td>${s.amount.toLocaleString()} F</td></tr>`;
+            });
+            container.innerHTML = html + '</tbody></table>';
+        }
+
+        // --- LOGIQUE FORMULAIRE VENTE ---
+        async function loadCategories() {
+            const catSel = document.getElementById('saleCategory');
+            const snap = await db.collection('categories').get();
+            catSel.innerHTML = '<option value="" disabled selected>Choisir...</option>';
+            snap.forEach(doc => catSel.innerHTML += `<option value="${doc.data().name}">${doc.data().name}</option>`);
+        }
+
+        document.getElementById('saleCategory').onchange = async (e) => {
+            const cat = e.target.value;
+            const prodSel = document.getElementById('saleProduct');
+            const amtInp = document.getElementById('saleAmount');
+            const manualInp = document.getElementById('manualProductName');
+
+            if (MANUAL_CATS.includes(cat)) {
+                prodSel.style.display = 'none'; manualInp.style.display = 'block';
+                amtInp.disabled = false; amtInp.value = "";
+            } else {
+                prodSel.style.display = 'block'; manualInp.style.display = 'none';
+                amtInp.disabled = true;
+                const snap = await db.collection('services').where('category', '==', cat).get();
+                prodSel.innerHTML = '<option value="" disabled selected>Service...</option>';
+                snap.forEach(doc => prodSel.innerHTML += `<option value="${doc.data().name}" data-price="${doc.data().price}">${doc.data().name}</option>`);
+            }
+        };
+
+        document.getElementById('saleProduct').onchange = (e) => {
+            document.getElementById('saleAmount').value = e.target.options[e.target.selectedIndex].dataset.price;
+        };
+
+        document.getElementById('addSaleForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const cat = document.getElementById('saleCategory').value;
+            await db.collection('sales').add({
+                cashierId: auth.currentUser.uid,
+                category: cat,
+                product: MANUAL_CATS.includes(cat) ? document.getElementById('manualProductName').value : document.getElementById('saleProduct').value,
+                amount: parseInt(document.getElementById('saleAmount').value),
+                paymentMethod: document.getElementById('paymentMethod').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            sModal.style.display = 'none';
+            loadMyData();
+        };
+
+        // --- SÉCURITÉ & AUTH ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection("profiles").doc(user.uid).get().then(doc => {
+                    const data = doc.data();
+                    if (data && (data.role === 'Caisse' || data.role === 'Admin')) {
+                        document.getElementById('welcomeTitle').innerText = "Bonjour, " + (data.name || "Caissier");
+                        loadMyData();
+                    } else { auth.signOut(); }
+                });
+            } else { window.location.href = 'index.html'; }
+        });
+
+        document.getElementById('logoutButton').onclick = () => auth.signOut();
+    </script>
+</body>
+</html>

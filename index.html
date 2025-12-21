@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs. B - Connexion</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+
+    <div class="auth-container">
+        
+        <div class="logo-container">
+             <img src="IMG_1959.jpg" alt="Logo Mrs. B" class="logo-img">
+        </div>
+        
+        <h2>Accès Connexion</h2>
+
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email / Identifiant" required>
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            
+            <button type="submit">Se Connecter</button>
+        </form>
+        
+        <p id="message" style="color: red; margin-top: 10px;"></p>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // --- 1. VOTRE NOUVELLE CONFIGURATION FIREBASE ---
+        var firebaseConfig = {
+            apiKey: "AIzaSyDG0GUDkf-suk_NQcGBQWQPDnOosdC21ew",
+            authDomain: "mrsb-15e64.firebaseapp.com",
+            projectId: "mrsb-15e64",
+            storageBucket: "mrsb-15e64.firebasestorage.app",
+            messagingSenderId: "572569813990",
+            appId: "1:572569813990:web:16366aac2bd2f49a7ccc27",
+            measurementId: "G-KMH9EWSV04"
+        };
+
+        // --- 2. INITIALISATION DES SERVICES (Méthode V8) ---
+        var app = firebase.initializeApp(firebaseConfig);
+        var auth = app.auth(); 
+        var db = app.firestore(); 
+
+        // --- 3. LOGIQUE DU FORMULAIRE ---
+        const loginForm = document.getElementById('loginForm');
+        const message = document.getElementById('message');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            message.textContent = '';
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // 1. Connexion de l'utilisateur (V8 syntaxe)
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // 2. Récupération du rôle dans Firestore (V8 syntaxe)
+                const docRef = db.collection("profiles").doc(user.uid);
+                const docSnap = await docRef.get();
+
+                if (docSnap.exists) {
+                    const role = docSnap.data().role;
+                    
+                    if (role === 'Admin') {
+                        window.location.href = 'dashboard.html'; // Redirection Admin
+                    } else if (role === 'Caisse') {
+                        window.location.href = 'caisse.html'; // Redirection Caisse
+                    } else {
+                        message.textContent = 'Rôle utilisateur non reconnu.';
+                        await auth.signOut();
+                    }
+                } else {
+                    message.textContent = 'Profil utilisateur non trouvé. (Rôle manquant).';
+                    await auth.signOut();
+                }
+
+            } catch (error) {
+                message.style.color = 'red';
+                if (error.code === 'auth/invalid-email' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    message.textContent = "Email ou mot de passe incorrect.";
+                } else {
+                    message.textContent = `Erreur de connexion: ${error.message}`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

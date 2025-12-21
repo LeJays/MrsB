@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs. B - Création de Compte</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+
+    <div class="auth-container">
+        
+        <div class="logo-container">
+              
+             <img src="IMG_1959.jpg" alt="Logo Mrs. B" class="logo-img">
+        </div>
+        
+        <h2>Créer un Compte d'Accès</h2>
+
+        <form id="registerForm">
+            <input type="email" id="email" placeholder="Email / Identifiant" required>
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            <input type="password" id="confirmPassword" placeholder="Confirmer Mot de passe" required>
+            <input type="text" id="name" placeholder="Nom et Prénom (Optionnel)" >
+            
+            <select id="role" required>
+                <option value="" disabled selected>Choisir le rôle (Admin ou Caisse)</option>
+                <option value="Caisse">Caisse</option>
+                <option value="Admin">Admin</option>
+            </select>
+
+            <button type="submit">Créer le Compte</button>
+        </form>
+
+        <p class="login-prompt">Vous avez déjà un compte ? <a href="index.html">Se connecter</a></p>
+        <p id="message" style="color: red; margin-top: 10px;"></p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // --- 1. VOTRE NOUVELLE CONFIGURATION FIREBASE ---
+        var firebaseConfig = {
+            apiKey: "AIzaSyDG0GUDkf-suk_NQcGBQWQPDnOosdC21ew",
+            authDomain: "mrsb-15e64.firebaseapp.com",
+            projectId: "mrsb-15e64",
+            storageBucket: "mrsb-15e64.firebasestorage.app",
+            messagingSenderId: "572569813990",
+            appId: "1:572569813990:web:16366aac2bd2f49a7ccc27",
+            measurementId: "G-KMH9EWSV04"
+        };
+
+        // --- 2. INITIALISATION DES SERVICES (Méthode V8) ---
+        var app = firebase.initializeApp(firebaseConfig);
+        var auth = app.auth(); // Service d'authentification
+        var db = app.firestore(); // Service de base de données Firestore
+
+        // --- 3. LOGIQUE DU FORMULAIRE ---
+        const registerForm = document.getElementById('registerForm');
+        const message = document.getElementById('message');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            message.textContent = '';
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const role = document.getElementById('role').value;
+            const name = document.getElementById('name').value;
+
+            if (password.length < 6) { 
+                message.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+                return;
+            }
+            if (password !== confirmPassword) {
+                message.textContent = 'Les mots de passe ne correspondent pas.';
+                return;
+            }
+
+            try {
+                // Création de l'utilisateur (Auth V8)
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Attribution du rôle (Firestore V8)
+                await db.collection("profiles").doc(user.uid).set({
+                    email: user.email,
+                    role: role,
+                    full_name: name || "Non spécifié",
+                    createdAt: new Date().toISOString()
+                });
+
+                message.style.color = 'green';
+                message.textContent = `Compte ${role} créé avec succès !`;
+                registerForm.reset(); 
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html'; 
+                }, 1500);
+
+            } catch (error) {
+                message.style.color = 'red';
+                if (error.code === 'auth/email-already-in-use') {
+                    message.textContent = "Cet email est déjà utilisé par un autre compte.";
+                } else {
+                    message.textContent = `Erreur: ${error.message}`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

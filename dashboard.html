@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs. B - Tableau de Bord</title>
+    <link rel="stylesheet" href="style.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="logo-container-dash">
+                <img src="IMG_1959.jpg" alt="Logo Mrs. B" class="logo-sidebar">
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li class="nav-header">Tableau de Bord</li>
+                    <li class="nav-item sub-item active"><a href="dashboard.html">Synthèse Globale</a></li>
+                    <li class="nav-item sub-item"><a href="#" id="openTransactionHistory">Historique Transactions</a></li> 
+
+                    <li class="nav-separator"></li>
+                    
+                    <li class="nav-header">Catalogue & Entrées</li>
+                    <li class="nav-item sub-item" id="openSaleModalLink"><a href="#">Saisie des Entrées</a></li> 
+                    <li class="nav-item sub-item" id="openCategoryModalLink"><a href="#">Gérer les Catégories</a></li> 
+                    <li class="nav-item sub-item" id="openServiceModalLink"><a href="#">Ajouter un Service</a></li> 
+
+                    <li class="nav-separator"></li>
+
+                    <li class="nav-header">Gestion Financière</li>
+                    <li class="nav-item sub-item"><a href="finance.html">Accès Finance</a></li> 
+                    <li class="nav-item sub-item"><a href="reports.html">Rapports & Stats</a></li> 
+
+                    <li class="nav-separator"></li>
+
+                    <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header-bar">
+                <h1>Synthèse Globale du Mois</h1>
+            </header>
+
+            <section class="kpi-grid">
+                <div class="kpi-card kpi-daily">
+                    <h3>Total Entrées (Mois)</h3>
+                    <p id="kpi-monthly-sales">0 FCFA</p>
+                </div>
+                <div class="kpi-card kpi-weekly">
+                    <h3>Nombre de Transactions (Mois)</h3>
+                    <p id="kpi-total-transactions">0</p>
+                </div>
+                <div class="kpi-card kpi-monthly">
+                    <h3>Dépenses Totales (Mois)</h3>
+                    <p id="kpi-monthly-expenses">0 FCFA</p>
+                </div>
+            </section>
+            
+            <section class="dashboard-charts-grid">
+                
+                <div class="chart-block">
+                    <h2>Top 5 Produits/Services Vendus (Mois)</h2>
+                    <div class="chart-container-medium">
+                         <canvas id="topSalesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-block">
+                    <h2>💰 Flux de Trésorerie (Bénéfice Brut)</h2>
+                    <div class="chart-container-medium">
+                        <canvas id="cashFlowPieChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-block full-width">
+                    <h2>💳 Répartition du Mode de Paiement</h2>
+                    <div class="chart-container-medium" style="max-width: 600px; margin: 0 auto;">
+                        <canvas id="paymentMethodPieChart"></canvas>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <div id="saleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button sale-close-button">&times;</span>
+            <h3 class="modal-title">Saisir une Nouvelle Entrée (Vente)</h3>
+            <form id="addSaleForm">
+                <p id="saleModalMessage" style="color: red;"></p>
+
+                <label for="saleCategory">1. Catégorie du Service/Produit:</label>
+                <select id="saleCategory" required>
+                    <option value="" disabled selected>Sélectionner une catégorie</option>
+                    </select>
+
+                <label for="saleProduct">2. Service ou Produit Vendu:</label>
+                <div id="productInputContainer">
+                    <select id="saleProduct" required>
+                        <option value="" disabled selected>Sélectionner un service/produit</option>
+                    </select>
+                    <input type="text" id="manualProductName" placeholder="Ex: Tresses, Maquillage Spécial..." style="display:none;">
+                </div>
+
+                <label for="saleAmount">3. Montant Total (FCFA):</label>
+                <input type="number" id="saleAmount" min="1" step="1" required disabled placeholder="Choisir la catégorie puis le service">
+
+                <label for="saleDiscount">4. Rabais/Réduction (FCFA, 0 si aucun):</label>
+                <input type="number" id="saleDiscount" min="0" step="1" value="0">
+
+                <label for="paymentMethod">5. Mode de Paiement:</label>
+                <select id="paymentMethod" required>
+                    <option value="" disabled selected>Sélectionner le mode</option>
+                    <option value="Cash">Cash (Espèces)</option>
+                    <option value="Mobile Money">Mobile Money</option>
+                    <option value="Orange Money">Orange Money</option>
+                </select>
+
+                <button type="submit" class="btn-primary">Enregistrer l'Entrée</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button category-close-button">&times;</span>
+            <h3 class="modal-title">Gérer les Catégories (Coiffure, Soins, etc.)</h3>
+            <form id="addCategoryForm">
+                <p id="categoryModalMessage" style="color: red;"></p>
+                <label for="categoryName">Nom de la nouvelle Catégorie:</label>
+                <input type="text" id="categoryName" required>
+                <button type="submit" class="btn-primary">Ajouter</button>
+            </form>
+            <div id="categoryList" style="margin-top: 20px;">
+                </div>
+        </div>
+    </div>
+
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button service-close-button">&times;</span>
+            <h3 class="modal-title">Ajouter un Service ou Produit au Catalogue</h3>
+            <form id="addServiceForm">
+                <p id="serviceModalMessage" style="color: red;"></p>
+                <label for="serviceCategorySelect">Catégorie:</label>
+                <select id="serviceCategorySelect" required>
+                    <option value="" disabled selected>Sélectionner une catégorie</option>
+                    </select>
+                <label for="serviceName">Nom du Service/Produit:</label>
+                <input type="text" id="serviceName" required>
+                <label for="servicePrice">Prix Standard (FCFA):</label>
+                <input type="number" id="servicePrice" min="0" step="1" required>
+                <button type="submit" class="btn-primary">Ajouter</button>
+            </form>
+            <div id="serviceList" style="margin-top: 20px;">
+                </div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close-button history-close-button">&times;</span>
+            <h3 class="modal-title">Historique Détaillé des Transactions</h3>
+            
+            <div id="transactionFilter" style="margin-bottom: 20px;">
+                <label for="filterType">Type:</label>
+                <select id="filterType" style="padding: 8px; border-radius: 4px; margin-right: 15px; background-color: #2a2a2a; color: #ddd;">
+                    <option value="all">Tout</option>
+                    <option value="sale">Entrées (Ventes)</option>
+                    <option value="expense">Dépenses</option>
+                </select>
+            </div>
+
+            <div id="transactionHistoryList" class="data-table-section">
+                <p>Chargement des transactions...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // --- 1. CONFIGURATION FIREBASE ---
+        var firebaseConfig = {
+            apiKey: "AIzaSyDG0GUDkf-suk_NQcGBQWQPDnOosdC21ew",
+            authDomain: "mrsb-15e64.firebaseapp.com",
+            projectId: "mrsb-15e64",
+            storageBucket: "mrsb-15e64.firebasestorage.app",
+            messagingSenderId: "572569813990",
+            appId: "1:572569813990:web:16366aac2bd2f49a7ccc27",
+            measurementId: "G-KMH9EWSV04"
+        };
+
+        // --- 2. INITIALISATION DES SERVICES ---
+        var app = firebase.initializeApp(firebaseConfig);
+        var auth = app.auth(); 
+        var db = app.firestore(); 
+
+        const START_OF_MONTH = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        const CHART_COLORS = [
+            '#A56C0B', '#3399ff', '#00cc00', '#ff6666', '#ffb366', '#66cc99', '#ffcc99', '#8A2BE2'
+        ];
+        
+        // --- LISTE DES CATÉGORIES À TARIFICATION MANUELLE (Nom + Prix) ---
+        const MANUAL_PRICING_CATEGORIES = ["Coiffures Femme", "Soins de Visage"]; 
+        
+        // =========================================================================
+        // --- RÉFÉRENCES DOM et GESTION DES MODALES ---
+        // =========================================================================
+
+        const saleModal = document.getElementById("saleModal");
+        const categoryModal = document.getElementById("categoryModal");
+        const serviceModal = document.getElementById("serviceModal");
+        const historyModal = document.getElementById("historyModal");
+        
+        const saleCategorySelect = document.getElementById('saleCategory');
+        const saleProductSelect = document.getElementById('saleProduct');
+        const saleAmountInput = document.getElementById('saleAmount');
+        const manualProductInput = document.getElementById('manualProductName'); 
+        
+        // Ouvertures (Initialisation de la Modale de Vente)
+        document.getElementById('openSaleModalLink').addEventListener('click', () => { 
+            saleModal.style.display = "block"; 
+            document.getElementById('addSaleForm').reset(); 
+            // Rétablir l'état d'origine (automatique/BD)
+            saleAmountInput.disabled = true; 
+            saleAmountInput.placeholder = "Choisir la catégorie puis le service";
+            saleProductSelect.style.display = 'block';
+            saleProductSelect.required = true;
+            manualProductInput.style.display = 'none';
+            manualProductInput.required = false;
+            document.getElementById('saleModalMessage').textContent = ''; 
+        });
+        document.getElementById('openCategoryModalLink').addEventListener('click', () => { categoryModal.style.display = "block"; document.getElementById('addCategoryForm').reset(); document.getElementById('categoryModalMessage').textContent = ''; loadCategories(); });
+        document.getElementById('openServiceModalLink').addEventListener('click', () => { serviceModal.style.display = "block"; document.getElementById('addServiceForm').reset(); document.getElementById('serviceModalMessage').textContent = ''; loadCategoriesToServiceModal(); loadServices(); });
+        document.getElementById('openTransactionHistory').addEventListener('click', () => { 
+            historyModal.style.display = "block"; 
+            loadTransactionHistory('all'); 
+            document.getElementById('filterType').value = 'all'; 
+        });
+
+        // Fermetures (inchangées)
+        document.querySelector(".sale-close-button").addEventListener('click', () => { saleModal.style.display = "none"; });
+        document.querySelector(".category-close-button").addEventListener('click', () => { categoryModal.style.display = "none"; });
+        document.querySelector(".service-close-button").addEventListener('click', () => { serviceModal.style.display = "none"; });
+        document.querySelector(".history-close-button").addEventListener('click', () => { historyModal.style.display = "none"; }); 
+
+        window.addEventListener('click', (event) => {
+            if (event.target == saleModal) saleModal.style.display = "none";
+            if (event.target == categoryModal) categoryModal.style.display = "none";
+            if (event.target == serviceModal) serviceModal.style.display = "none";
+            if (event.target == historyModal) historyModal.style.display = "none";
+        });
+        
+        // --- Logique de chargement des Catégories (inchangée) ---
+        async function loadCategories() {
+            const categorySelects = [
+                document.getElementById('saleCategory'), 
+                document.getElementById('serviceCategorySelect') 
+            ];
+            
+            try {
+                const snapshot = await db.collection('categories').orderBy('name').get();
+                
+                categorySelects.forEach(select => {
+                    const defaultOption = select.querySelector('option[disabled][selected]');
+                    select.innerHTML = '';
+                    if(defaultOption) select.appendChild(defaultOption);
+
+                    snapshot.forEach(doc => {
+                        const option = document.createElement('option');
+                        option.value = doc.data().name;
+                        option.textContent = doc.data().name;
+                        select.appendChild(option);
+                    });
+                });
+            } catch (error) {
+                console.error("Erreur lors du chargement des catégories:", error);
+            }
+
+            loadServicesForSaleModal();
+        }
+
+        // --- Logique de chargement des Services (inchangée) ---
+        async function loadServicesForSaleModal(category = null) {
+            const saleProductSelect = document.getElementById('saleProduct');
+            
+            const defaultOption = saleProductSelect.querySelector('option[disabled][selected]');
+            saleProductSelect.innerHTML = '';
+            if(defaultOption) saleProductSelect.appendChild(defaultOption);
+
+            if (!category) {
+                saleProductSelect.disabled = true;
+                return;
+            }
+
+            saleProductSelect.disabled = false;
+            
+            try {
+                const servicesRef = db.collection('services').where('category', '==', category).orderBy('name');
+                const snapshot = await servicesRef.get();
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const option = document.createElement('option');
+                    option.value = data.name;
+                    option.textContent = `${data.name} (${data.price.toLocaleString('fr-FR')} FCFA)`;
+                    // Stocker le prix pour la récupération automatique
+                    option.dataset.price = data.price;
+                    saleProductSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Erreur lors du chargement des services:", error);
+            }
+        }
+        
+        // =========================================================================
+        // --- GESTION DES ÉVÉNEMENTS DE SÉLECTION (LOGIQUE CORRIGÉE) ---
+        // =========================================================================
+
+        saleCategorySelect.addEventListener('change', (e) => {
+            const selectedCategory = e.target.value;
+            
+            // 1. Réinitialiser
+            loadServicesForSaleModal(selectedCategory);
+            saleAmountInput.value = '';
+            document.getElementById('saleDiscount').value = 0;
+
+            // 2. Définir le comportement des champs de NOM et MONTANT
+            if (MANUAL_PRICING_CATEGORIES.includes(selectedCategory)) {
+                
+                // --- MODE MANUEL (Nom + Prix) ---
+                saleProductSelect.style.display = 'none';
+                saleProductSelect.required = false;
+                manualProductInput.style.display = 'block';
+                manualProductInput.required = true;
+                
+                // Le prix doit être saisi par l'utilisateur
+                saleAmountInput.disabled = false;
+                saleAmountInput.placeholder = "Saisir le prix manuellement";
+
+            } else {
+                
+                // --- MODE BD (Nom de la liste, Prix automatique) ---
+                saleProductSelect.style.display = 'block';
+                saleProductSelect.required = true;
+                manualProductInput.style.display = 'none';
+                manualProductInput.required = false;
+
+                // Le prix est désactivé jusqu'à ce qu'un service soit choisi dans la liste BD
+                saleAmountInput.disabled = true; 
+                saleAmountInput.placeholder = "Choisir un service pour obtenir le prix standard";
+            }
+        });
+
+
+        saleProductSelect.addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const price = parseInt(selectedOption.dataset.price);
+            const selectedCategory = saleCategorySelect.value;
+            
+            // Uniquement si ce n'est PAS une catégorie manuelle
+            if (!MANUAL_PRICING_CATEGORIES.includes(selectedCategory)) {
+                 if (!isNaN(price)) {
+                    // Catégorie automatique: On remplit le prix et on bloque
+                    saleAmountInput.value = price;
+                    saleAmountInput.disabled = true; 
+                } else {
+                    // Fallback si le prix est manquant pour un service BD
+                    saleAmountInput.value = '';
+                    saleAmountInput.disabled = false; 
+                    saleAmountInput.placeholder = "Prix non défini en BD, saisie manuelle requise";
+                }
+            } 
+
+            document.getElementById('saleDiscount').value = 0;
+        });
+
+
+        // =========================================================================
+        // --- Saisie des Entrées (Ventes) FORM SUBMIT (CORRIGÉ) ---
+        // =========================================================================
+
+        document.getElementById('addSaleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = document.getElementById('saleModalMessage');
+            message.textContent = '';
+            
+            const category = document.getElementById('saleCategory').value;
+            const isManual = MANUAL_PRICING_CATEGORIES.includes(category);
+
+            // Déterminer le nom du produit (manuel ou BD)
+            let product;
+            if (isManual) {
+                product = manualProductInput.value;
+            } else {
+                product = saleProductSelect.value;
+            }
+
+            // Correction: Sauvegarder l'état du champ de montant et le débloquer temporairement pour l'envoi
+            const wasDisabled = saleAmountInput.disabled;
+            if (wasDisabled) {
+                saleAmountInput.disabled = false;
+            }
+            
+            const amount = parseInt(saleAmountInput.value); 
+            const discount = parseInt(document.getElementById('saleDiscount').value) || 0;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            
+            // Valider les champs
+            if (amount <= 0 || isNaN(amount) || !category || !product || !paymentMethod) {
+                message.style.color = 'red';
+                message.textContent = "Veuillez remplir tous les champs obligatoires (Montant > 0 et Nom du Service).";
+                // Rétablir l'état du champ de montant si l'envoi échoue
+                if (wasDisabled) saleAmountInput.disabled = true; 
+                return;
+            }
+            
+            try {
+                await db.collection("sales").add({
+                    category: category,
+                    product: product, 
+                    amount: amount,
+                    discount: discount,
+                    paymentMethod: paymentMethod, 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                message.style.color = 'green';
+                message.textContent = `Entrée de ${amount.toLocaleString('fr-FR')} FCFA enregistrée (Service: ${product}, Méthode: ${paymentMethod}).`;
+                document.getElementById('addSaleForm').reset();
+                loadDashboardData(); 
+                
+                // Rétablir l'état d'origine des champs après succès et reset
+                saleAmountInput.disabled = true;
+                saleAmountInput.placeholder = "Choisir la catégorie puis le service"; 
+                saleProductSelect.style.display = 'block';
+                manualProductInput.style.display = 'none';
+                saleProductSelect.required = true;
+                manualProductInput.required = false;
+
+            } catch (error) {
+                message.style.color = 'red';
+                message.textContent = `Erreur d'enregistrement: ${error.message}`;
+                // Rétablir l'état du champ de montant si l'envoi échoue
+                if (wasDisabled) saleAmountInput.disabled = true; 
+            }
+        });
+        
+        // =========================================================================
+        // --- LOGIQUE DES GRAPHIQUES ET KPIs (Inchangée) ---
+        // =========================================================================
+        
+        let cashFlowPieChartInstance = null;
+        let paymentMethodPieChartInstance = null;
+        let topSalesChartInstance = null;
+        
+        async function loadDashboardData() {
+            let totalSales = 0;
+            let totalTransactions = 0;
+            let totalExpenses = 0;
+            let salesByProduct = {};
+            let salesByPaymentMethod = {};
+
+            try {
+                // 1. Charger les ventes du mois
+                const salesSnapshot = await db.collection('sales')
+                                              .where('createdAt', '>=', START_OF_MONTH)
+                                              .get();
+                
+                salesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const amount = parseInt(data.amount) || 0;
+                    const product = data.product || 'Inconnu';
+                    const method = data.paymentMethod || 'Non Spécifié';
+
+                    totalSales += amount;
+                    totalTransactions++;
+                    
+                    salesByProduct[product] = (salesByProduct[product] || 0) + amount;
+                    salesByPaymentMethod[method] = (salesByPaymentMethod[method] || 0) + amount;
+                });
+                
+                // 2. Charger les dépenses du mois
+                const expensesSnapshot = await db.collection('expenses')
+                                                 .where('createdAt', '>=', START_OF_MONTH)
+                                                 .get();
+                
+                expensesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const amount = parseInt(data.amount) || 0;
+                    totalExpenses += amount;
+                });
+                
+                // 3. Mise à jour des KPIs
+                document.getElementById('kpi-monthly-sales').textContent = totalSales.toLocaleString('fr-FR') + ' FCFA';
+                document.getElementById('kpi-total-transactions').textContent = totalTransactions.toLocaleString('fr-FR');
+                document.getElementById('kpi-monthly-expenses').textContent = totalExpenses.toLocaleString('fr-FR') + ' FCFA';
+
+                // 4. Dessiner les Graphiques
+                renderCashFlowPieChart(totalSales, totalExpenses);
+                renderPaymentMethodPieChart(salesByPaymentMethod);
+                renderTopSalesChart(salesByProduct);
+
+            } catch (error) {
+                console.error("Erreur lors du chargement des données du tableau de bord:", error);
+            }
+        }
+
+        function renderTopSalesChart(data) {
+            const ctx = document.getElementById('topSalesChart').getContext('2d');
+            
+            if (topSalesChartInstance && typeof topSalesChartInstance.destroy === 'function') {
+                topSalesChartInstance.destroy();
+            }
+
+            const sortedProducts = Object.entries(data)
+                                         .sort(([, a], [, b]) => b - a)
+                                         .slice(0, 5); 
+            
+            const labels = sortedProducts.map(item => item[0]);
+            const revenues = sortedProducts.map(item => item[1]);
+            
+            if (revenues.length === 0) {
+                 ctx.canvas.parentNode.innerHTML = '<p style="text-align: center; color: #ccc;">Aucune vente ce mois pour le Top 5.</p>';
+                 return;
+            }
+
+            topSalesChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenu (FCFA)',
+                        data: revenues,
+                        backgroundColor: CHART_COLORS.slice(0, labels.length),
+                        borderColor: '#A56C0B',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: (value) => value.toLocaleString('fr-FR') + ' F', color: 'white' }, grid: { color: '#333' } },
+                        x: { ticks: { color: 'white' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+        }
+        
+        function renderCashFlowPieChart(totalSales, totalExpenses) {
+            const ctx = document.getElementById('cashFlowPieChart').getContext('2d');
+            
+            if (cashFlowPieChartInstance && typeof cashFlowPieChartInstance.destroy === 'function') {
+                cashFlowPieChartInstance.destroy();
+            }
+
+            const profit = totalSales - totalExpenses;
+            
+            if (totalSales === 0 && totalExpenses === 0) {
+                 ctx.canvas.parentNode.innerHTML = '<p style="text-align: center; color: #ccc;">Pas assez de données pour le Flux de Trésorerie.</p>';
+                 return;
+            }
+
+            const data = {
+                labels: ['Entrées (Ventes)', 'Dépenses'],
+                datasets: [{
+                    data: [totalSales, totalExpenses],
+                    backgroundColor: ['#00cc00', '#ff6666'],
+                    hoverOffset: 4
+                }]
+            };
+
+            cashFlowPieChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: 'white' } },
+                        title: { 
+                            display: true, 
+                            text: `Bénéfice Brut: ${profit.toLocaleString('fr-FR')} FCFA`, 
+                            color: profit >= 0 ? '#00cc00' : '#ff6666' 
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderPaymentMethodPieChart(data) {
+            const ctx = document.getElementById('paymentMethodPieChart').getContext('2d');
+            
+            if (paymentMethodPieChartInstance && typeof paymentMethodPieChartInstance.destroy === 'function') {
+                paymentMethodPieChartInstance.destroy();
+            }
+
+            const labels = Object.keys(data);
+            const amounts = Object.values(data);
+            
+            if (amounts.length === 0) {
+                 ctx.canvas.parentNode.innerHTML = '<p style="text-align: center; color: #ccc;">Aucun paiement enregistré ce mois.</p>';
+                 return;
+            }
+            
+            const total = amounts.reduce((sum, amount) => sum + amount, 0);
+
+            const chartData = {
+                labels: labels.map(label => `${label} (${((data[label] / total) * 100).toFixed(1)}%)`),
+                datasets: [{
+                    data: amounts,
+                    backgroundColor: CHART_COLORS.slice(0, labels.length),
+                    hoverOffset: 4
+                }]
+            };
+
+            paymentMethodPieChartInstance = new Chart(ctx, {
+                type: 'doughnut', 
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: 'white' } },
+                        title: { 
+                            display: true, 
+                            text: `Total: ${total.toLocaleString('fr-FR')} FCFA`, 
+                            color: 'white' 
+                        }
+                    }
+                }
+            });
+        }
+        
+        // --- HISTORIQUE DES TRANSACTIONS (Inchangée) ---
+
+        document.getElementById('filterType').addEventListener('change', (e) => {
+            loadTransactionHistory(e.target.value);
+        });
+
+        async function loadTransactionHistory(filterType) {
+            const listContainer = document.getElementById('transactionHistoryList');
+            listContainer.innerHTML = '<p>Chargement en cours...</p>';
+            
+            try {
+                let allTransactions = [];
+                
+                if (filterType === 'all' || filterType === 'sale') {
+                    const salesSnapshot = await db.collection('sales').orderBy('createdAt', 'desc').get();
+                    salesSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        allTransactions.push({
+                            id: doc.id,
+                            type: 'Entrée (Vente)',
+                            name: data.product,
+                            category: data.category,
+                            amount: (parseInt(data.amount) || 0),
+                            discount: (parseInt(data.discount) || 0),
+                            date: data.createdAt ? data.createdAt.toDate() : new Date(),
+                            method: data.paymentMethod || 'N/A'
+                        });
+                    });
+                }
+
+                if (filterType === 'all' || filterType === 'expense') {
+                    const expensesSnapshot = await db.collection('expenses').orderBy('createdAt', 'desc').get();
+                    expensesSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        allTransactions.push({
+                            id: doc.id,
+                            type: 'Dépense',
+                            name: data.name,
+                            category: data.type,
+                            amount: -(parseInt(data.amount) || 0),
+                            discount: 0,
+                            date: data.createdAt ? data.createdAt.toDate() : new Date(),
+                            method: 'N/A'
+                        });
+                    });
+                }
+                
+                allTransactions.sort((a, b) => b.date - a.date);
+
+                renderTransactionTable(allTransactions, listContainer);
+
+            } catch (error) {
+                console.error("Erreur lors du chargement de l'historique:", error);
+                listContainer.innerHTML = '<p style="color: red;">Erreur de chargement de l\'historique des transactions.</p>';
+            }
+        }
+
+        function renderTransactionTable(transactions, container) {
+            if (transactions.length === 0) {
+                container.innerHTML = '<p style="color: #ccc;">Aucune transaction correspondante.</p>';
+                return;
+            }
+
+            let html = `
+                <table class="data-table transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Détail</th>
+                            <th>Catégorie</th>
+                            <th>Mode Paiement</th>
+                            <th style="text-align: right;">Montant (FCFA)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            
+            transactions.forEach(t => {
+                const amountClass = t.amount >= 0 ? 'text-positive' : 'text-negative';
+                const dateString = t.date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                html += `
+                    <tr>
+                        <td>${dateString}</td>
+                        <td style="font-weight: bold; color: ${t.type.includes('Entrée') ? '#00cc00' : '#ff6666'};">${t.type}</td>
+                        <td>${t.name}</td>
+                        <td>${t.category}</td>
+                        <td>${t.method}</td>
+                        <td class="${amountClass}" style="text-align: right;">${t.amount.toLocaleString('fr-FR')}</td>
+                    </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // =========================================================================
+        // --- SÉCURITÉ ET DÉMARRAGE ---
+        // =========================================================================
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection("profiles").doc(user.uid).get().then(docSnap => {
+                    if (!docSnap.exists || docSnap.data().role !== 'Admin') {
+                        auth.signOut();
+                        window.location.href = 'index.html';
+                    } else {
+                        loadCategories();
+                        loadDashboardData();
+                    }
+                }).catch(error => {
+                    console.error("Erreur de vérification de profil:", error);
+                    auth.signOut();
+                    window.location.href = 'index.html';
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await auth.signOut();
+            window.location.href = 'index.html';
+        });
+
+        // =========================================================================
+// --- GESTION DES CATÉGORIES (AJOUT ET LISTAGE) ---
+// =========================================================================
+
+// 1. Ajouter une catégorie via le formulaire
+document.getElementById('addCategoryForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nameInput = document.getElementById('categoryName');
+    const message = document.getElementById('categoryModalMessage');
+    const name = nameInput.value.trim();
+
+    if (!name) return;
+
+    try {
+        // Vérification si la catégorie existe déjà
+        const existing = await db.collection('categories').where('name', '==', name).get();
+        if (!existing.empty) {
+            message.textContent = "Cette catégorie existe déjà.";
+            return;
+        }
+
+        await db.collection('categories').add({ name: name });
+        nameInput.value = '';
+        message.style.color = "green";
+        message.textContent = "Catégorie ajoutée avec succès !";
+        
+        loadCategories(); // Met à jour les sélecteurs de vente et service
+        renderCategoryList(); // Met à jour la liste visuelle dans la modale
+    } catch (error) {
+        message.textContent = "Erreur : " + error.message;
+    }
+});
+
+// 2. Afficher la liste des catégories existantes dans la modale
+async function renderCategoryList() {
+    const listDiv = document.getElementById('categoryList');
+    listDiv.innerHTML = '<p>Chargement...</p>';
+    
+    const snapshot = await db.collection('categories').orderBy('name').get();
+    let html = '<ul style="list-style: none; padding: 0; margin-top: 15px;">';
+    
+    snapshot.forEach(doc => {
+        html += `
+            <li style="display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #444;">
+                <span>${doc.data().name}</span>
+                <button onclick="deleteCategory('${doc.id}')" style="background:none; border:none; color:#ff6666; cursor:pointer;">Supprimer</button>
+            </li>`;
+    });
+    html += '</ul>';
+    listDiv.innerHTML = html;
+}
+
+// 3. Supprimer une catégorie
+window.deleteCategory = async (id) => {
+    if (confirm("Voulez-vous vraiment supprimer cette catégorie ?")) {
+        await db.collection('categories').doc(id).delete();
+        loadCategories();
+        renderCategoryList();
+    }
+};
+
+// =========================================================================
+// --- GESTION DU CATALOGUE DES SERVICES (AJOUT ET LISTAGE) ---
+// =========================================================================
+
+// 1. Charger les catégories dans le sélecteur de la modale "Ajouter un Service"
+async function loadCategoriesToServiceModal() {
+    const select = document.getElementById('serviceCategorySelect');
+    const snapshot = await db.collection('categories').orderBy('name').get();
+    
+    select.innerHTML = '<option value="" disabled selected>Sélectionner une catégorie</option>';
+    snapshot.forEach(doc => {
+        const option = document.createElement('option');
+        option.value = doc.data().name;
+        option.textContent = doc.data().name;
+        select.appendChild(option);
+    });
+}
+
+// 2. Ajouter un service au catalogue
+document.getElementById('addServiceForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const category = document.getElementById('serviceCategorySelect').value;
+    const name = document.getElementById('serviceName').value;
+    const price = parseInt(document.getElementById('servicePrice').value);
+    const message = document.getElementById('serviceModalMessage');
+
+    try {
+        await db.collection('services').add({
+            category: category,
+            name: name,
+            price: price
+        });
+        document.getElementById('addServiceForm').reset();
+        message.style.color = "green";
+        message.textContent = "Service ajouté au catalogue !";
+        loadServices(); // Rafraîchir le tableau des services
+    } catch (error) {
+        message.textContent = "Erreur : " + error.message;
+    }
+});
+
+// 3. Afficher le catalogue des services dans la modale
+async function loadServices() {
+    const listDiv = document.getElementById('serviceList');
+    const snapshot = await db.collection('services').orderBy('category').get();
+    
+    let html = `
+        <table class="data-table" style="margin-top: 15px; font-size: 0.9em;">
+            <thead>
+                <tr>
+                    <th>Catégorie</th>
+                    <th>Service</th>
+                    <th>Prix</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>`;
+            
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        html += `
+            <tr>
+                <td>${data.category}</td>
+                <td>${data.name}</td>
+                <td>${data.price.toLocaleString()} F</td>
+                <td><button onclick="deleteService('${doc.id}')" style="background:none; border:none; color:#ff6666; cursor:pointer;">🗑️</button></td>
+            </tr>`;
+    });
+    html += '</tbody></table>';
+    listDiv.innerHTML = html;
+}
+
+// 4. Supprimer un service
+window.deleteService = async (id) => {
+    if (confirm("Supprimer ce service du catalogue ?")) {
+        await db.collection('services').doc(id).delete();
+        loadServices();
+    }
+};
+
+// Liaison avec l'ouverture des modales existantes dans votre code
+document.getElementById('openCategoryModalLink').addEventListener('click', renderCategoryList);
+document.getElementById('openServiceModalLink').addEventListener('click', () => {
+    loadCategoriesToServiceModal();
+    loadServices();
+});
+        
+        // --- NOTE : Les fonctions loadCategoriesToServiceModal, loadServices, addCategory, addService
+        // --- Doivent être définies séparément dans votre code (comme elles gèrent les autres modales).
+        
+    </script>
+</body>
+</html>

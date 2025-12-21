@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs. B - Gestion Financière</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="logo-container-dash">
+                <img src="IMG_1959.jpg" alt="Logo Mrs. B" class="logo-sidebar">
+                <p>ADMIN</p>
+            </div>
+           <nav class="main-nav">
+            <ul>
+                <li class="nav-header">Tableau de Bord</li>
+                <li class="nav-item sub-item active"><a href="dashboard.html">Synthèse Globale</a></li>
+                
+                <li class="nav-separator"></li>
+                
+                <li class="nav-header">Catalogue & Sorties</li>
+                <li class="nav-item sub-item" id="openSaleModalLink"><a href="#">Saisie des Sorties</a></li> 
+                <li class="nav-item sub-item" id="openCategoryModalLink"><a href="#">Gérer les Catégories</a></li> 
+                <li class="nav-item sub-item" id="openServiceModalLink"><a href="#">Ajouter un Service</a></li> 
+
+                <li class="nav-separator"></li>
+
+                <li class="nav-header">Gestion Financière</li>
+                <li class="nav-item sub-item"><a href="finance.html">Accès Finance</a></li> 
+                
+                <li class="nav-item sub-item"><a href="reports.html">Rapports & Stats</a></li> 
+
+                <li class="nav-separator"></li>
+
+                <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
+            </ul>
+        </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header-bar">
+                <h1>Gestion Financière (Finance)</h1>
+            </header>
+            
+            <section class="kpi-grid finance-kpi">
+                <div class="kpi-card kpi-positive">
+                    <h3>Revenus Bruts Totaux (Entrées)</h3>
+                    <p id="kpi-revenue">0 FCFA</p>
+                </div>
+                <div class="kpi-card kpi-accent">
+                    <h3>Capital Investi</h3>
+                    <p id="kpi-capital">0 FCFA</p> 
+                </div>
+                <div class="kpi-card kpi-net-cash">
+                    <h3>Montant en Caisse Actuel</h3>
+                    <p id="kpi-cash">0 FCFA</p>
+                </div>
+            </section>
+
+            <section class="finance-grid">
+                
+                <div class="finance-block">
+                    <h2>Dépenses du Mois <button class="btn-primary" id="openExpenseModalBtn">Nouvelle Dépense</button></h2>
+                    <div id="expenseList" class="data-list">
+                        <p>Chargement des dépenses...</p>
+                    </div>
+                </div>
+
+                <div class="finance-block">
+                    <h2>Dettes (Passif) <button class="btn-primary" id="openDebtModalBtn">Ajouter Dette</button></h2>
+                    <div id="debtList" class="data-list">
+                        <p>Chargement des dettes...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button expense-close-button">&times;</span>
+            <h3 class="modal-title">Enregistrer une Nouvelle Dépense</h3>
+            <form id="addExpenseForm">
+                <p id="expenseModalMessage" style="color: red;"></p>
+                
+                <select id="expenseTypeSelect" required>
+                    <option value="" disabled selected>1. Type de Dépense</option>
+                    <option value="Salaire">Salaire</option>
+                    <option value="Achat matériel">Achat matériel</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Loyer">Loyer</option>
+                    <option value="Impôt">Impôt</option>
+                    <option value="Electricité">Electricité</option>
+                    <option value="Autres">Autres</option>
+                </select>
+
+                <div id="dynamicExpenseInputs">
+                    </div>
+                
+                <label for="expenseAmount">Montant de la Dépense (FCFA):</label>
+                <input type="number" id="expenseAmount" min="1" step="1" required>
+
+                <button type="submit" class="btn-primary">Enregistrer la Dépense</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="capitalModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button capital-close-button">&times;</span>
+            <h3 class="modal-title">Modifier l'Investissement Initial (Capital)</h3>
+            <form id="updateCapitalForm">
+                <p id="capitalModalMessage" style="color: red;"></p>
+                <label for="newCapitalAmount">Nouveau Montant du Capital (FCFA):</label>
+                <input type="number" id="newCapitalAmount" min="0" step="1" required>
+                <button type="submit" class="btn-primary">Mettre à Jour le Capital</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="debtModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button debt-close-button">&times;</span>
+            <h3 class="modal-title">Ajouter une Nouvelle Dette</h3>
+            <form id="addDebtForm">
+                <p id="debtModalMessage" style="color: red;"></p>
+                <label for="creditorName">Nom du Créancier:</label>
+                <input type="text" id="creditorName" required>
+                <label for="debtAmount">Montant de la Dette (FCFA):</label>
+                <input type="number" id="debtAmount" min="1" step="1" required>
+                <button type="submit" class="btn-primary">Enregistrer la Dette</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // --- 1. CONFIGURATION FIREBASE ---
+        var firebaseConfig = {
+            apiKey: "AIzaSyDG0GUDkf-suk_NQcGBQWQPDnOosdC21ew",
+            authDomain: "mrsb-15e64.firebaseapp.com",
+            projectId: "mrsb-15e64",
+            storageBucket: "mrsb-15e64.firebasestorage.app",
+            messagingSenderId: "572569813990",
+            appId: "1:572569813990:web:16366aac2bd2f49a7ccc27",
+            measurementId: "G-KMH9EWSV04"
+        };
+
+        // --- 2. INITIALISATION DES SERVICES ---
+        var app = firebase.initializeApp(firebaseConfig);
+        var auth = app.auth(); 
+        var db = app.firestore(); 
+
+        // =========================================================================
+        // --- LOGIQUE MODALES ET ÉLÉMENTS DU DOM ---
+        // =========================================================================
+
+        const expenseModal = document.getElementById("expenseModal");
+        const expenseTypeSelect = document.getElementById('expenseTypeSelect');
+        const dynamicExpenseInputs = document.getElementById('dynamicExpenseInputs');
+        const capitalModal = document.getElementById("capitalModal");
+        const debtModal = document.getElementById("debtModal");
+
+        // Événements d'ouverture des modales
+        document.getElementById('openExpenseModalBtn').addEventListener('click', () => { expenseModal.style.display = "block"; document.getElementById('addExpenseForm').reset(); dynamicExpenseInputs.innerHTML = ''; document.getElementById('expenseModalMessage').textContent = ''; });
+        document.querySelector(".expense-close-button").addEventListener('click', () => { expenseModal.style.display = "none"; });
+
+        // ATTENTION: Le bouton 'openCapitalModalBtn' est géré dynamiquement par loadCapitalData()
+        
+        document.querySelector(".capital-close-button").addEventListener('click', () => { capitalModal.style.display = "none"; });
+
+        document.getElementById('openDebtModalBtn').addEventListener('click', () => { debtModal.style.display = "block"; document.getElementById('addDebtForm').reset(); document.getElementById('debtModalMessage').textContent = ''; });
+        document.querySelector(".debt-close-button").addEventListener('click', () => { debtModal.style.display = "none"; });
+
+        window.addEventListener('click', (event) => {
+            if (event.target == expenseModal) expenseModal.style.display = "none";
+            if (event.target == capitalModal) capitalModal.style.display = "none";
+            if (event.target == debtModal) debtModal.style.display = "none";
+        });
+
+        // --- LOGIQUE DE BASCULE DES CHAMPS DE DÉPENSES ---
+        const manualExpenseTypes = ['Achat matériel', 'Maintenance', 'Autres'];
+
+        expenseTypeSelect.addEventListener('change', (e) => {
+            const selectedType = e.target.value;
+            dynamicExpenseInputs.innerHTML = ''; 
+
+            if (manualExpenseTypes.includes(selectedType)) {
+                dynamicExpenseInputs.innerHTML = `
+                    <label for="expenseName">Nom ou Description de la Dépense:</label>
+                    <input type="text" id="expenseName" required>
+                `;
+            } else {
+                dynamicExpenseInputs.innerHTML = '';
+            }
+        });
+
+        // =========================================================================
+        // --- GESTION DES DÉPENSES (Collection 'expenses') ---
+        // =========================================================================
+
+        document.getElementById('addExpenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = document.getElementById('expenseModalMessage');
+            message.textContent = '';
+            
+            const type = expenseTypeSelect.value;
+            const amount = parseInt(document.getElementById('expenseAmount').value);
+            let name = type; 
+
+            if (manualExpenseTypes.includes(type)) {
+                const manualName = document.getElementById('expenseName').value.trim();
+                if (manualName) name = manualName;
+            }
+
+            if (amount <= 0 || !type) {
+                message.style.color = 'red';
+                message.textContent = "Veuillez entrer un montant valide et un type de dépense.";
+                return;
+            }
+
+            try {
+                await db.collection("expenses").add({
+                    type: type,
+                    name: name,
+                    amount: amount,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                message.style.color = 'green';
+                message.textContent = `Dépense "${name}" (${amount.toLocaleString('fr-FR')} FCFA) enregistrée.`;
+                document.getElementById('addExpenseForm').reset();
+                dynamicExpenseInputs.innerHTML = '';
+                
+                loadFinancialData(); 
+            } catch (error) {
+                message.style.color = 'red';
+                message.textContent = `Erreur d'enregistrement: ${error.message}`;
+            }
+        });
+
+        async function loadExpenses() {
+            const expenseList = document.getElementById('expenseList');
+            expenseList.innerHTML = '<p>Chargement en cours...</p>';
+            let totalExpenses = 0;
+
+            try {
+                const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                
+                const snapshot = await db.collection('expenses')
+                                         .where('createdAt', '>=', startOfMonth)
+                                         .orderBy('createdAt', 'desc')
+                                         .get();
+                
+                expenseList.innerHTML = '';
+
+                if (snapshot.empty) {
+                    expenseList.innerHTML = '<p style="color: #ccc;">Aucune dépense enregistrée ce mois.</p>';
+                    return totalExpenses;
+                }
+
+                const ul = document.createElement('ul');
+                ul.className = 'expense-ul';
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const amount = parseInt(data.amount) || 0;
+                    const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : 'Date inconnue';
+                    totalExpenses += amount;
+
+                    const li = document.createElement('li');
+                    li.className = 'expense-item';
+                    li.innerHTML = `
+                        <div>
+                            <span class="expense-title">${data.name} (${data.type})</span>
+                            <span class="expense-date">${date}</span>
+                        </div>
+                        <span class="expense-amount expense-negative">${amount.toLocaleString('fr-FR')} FCFA</span>
+                    `;
+                    ul.appendChild(li);
+                });
+
+                expenseList.appendChild(ul);
+                return totalExpenses;
+
+            } catch (error) {
+                console.error("Erreur lors du chargement des dépenses:", error);
+                expenseList.innerHTML = '<p style="color: red;">Erreur de chargement des dépenses. Vérifiez les règles Firestore.</p>';
+                return totalExpenses;
+            }
+        }
+
+
+        // =========================================================================
+        // --- GESTION DU CAPITAL (Collection 'config') ---
+        // =========================================================================
+
+        const CAPITAL_DOC_ID = 'investment';
+
+        async function loadCapitalData(setToInput = false) {
+            let capital = 0;
+            try {
+                const doc = await db.collection('config').doc(CAPITAL_DOC_ID).get();
+                
+                if (doc.exists) {
+                    capital = parseInt(doc.data().amount) || 0;
+                }
+
+                if (setToInput) {
+                    document.getElementById('newCapitalAmount').value = capital;
+                } else {
+                    // *** CORRECTION DU BOUTON ICI ***
+                    const kpiElement = document.getElementById('kpi-capital');
+                    kpiElement.innerHTML = `${capital.toLocaleString('fr-FR')} FCFA <button class="btn-icon" id="openCapitalModalBtn">✎</button>`;
+                    
+                    // Ré-attacher l'événement au bouton nouvellement créé
+                    document.getElementById('openCapitalModalBtn').addEventListener('click', () => { 
+                        capitalModal.style.display = "block"; 
+                        document.getElementById('capitalModalMessage').textContent = '';
+                        loadCapitalData(true); // Charger la valeur actuelle dans l'input
+                    });
+
+                    return capital;
+                }
+                return capital; // Retourne le capital même si on le set à l'input
+
+            } catch (error) {
+                console.error("Erreur lors du chargement du capital:", error);
+                return 0;
+            }
+        }
+
+        document.getElementById('updateCapitalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = document.getElementById('capitalModalMessage');
+            message.textContent = '';
+            
+            const newAmount = parseInt(document.getElementById('newCapitalAmount').value);
+
+            if (isNaN(newAmount) || newAmount < 0) {
+                message.style.color = 'red';
+                message.textContent = "Veuillez entrer un montant valide (>= 0).";
+                return;
+            }
+
+            try {
+                await db.collection("config").doc(CAPITAL_DOC_ID).set({
+                    amount: newAmount,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                message.style.color = 'green';
+                message.textContent = `Capital mis à jour à ${newAmount.toLocaleString('fr-FR')} FCFA.`;
+                loadFinancialData();
+                setTimeout(() => { capitalModal.style.display = "none"; }, 1500);
+
+            } catch (error) {
+                message.style.color = 'red';
+                message.textContent = `Erreur de mise à jour: ${error.message}`;
+            }
+        });
+
+        // =========================================================================
+        // --- GESTION DES DETTES (Collection 'debts') ---
+        // =========================================================================
+
+        document.getElementById('addDebtForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = document.getElementById('debtModalMessage');
+            message.textContent = '';
+            
+            const name = document.getElementById('creditorName').value.trim();
+            const amount = parseInt(document.getElementById('debtAmount').value);
+
+            if (amount <= 0 || !name) {
+                message.style.color = 'red';
+                message.textContent = "Veuillez remplir le nom du créancier et un montant valide.";
+                return;
+            }
+
+            try {
+                await db.collection("debts").add({
+                    creditor: name,
+                    amount: amount,
+                    isPaid: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                message.style.color = 'green';
+                message.textContent = `Dette de ${amount.toLocaleString('fr-FR')} FCFA due à ${name} enregistrée.`;
+                document.getElementById('addDebtForm').reset();
+                loadFinancialData();
+            } catch (error) {
+                message.style.color = 'red';
+                message.textContent = `Erreur d'enregistrement: ${error.message}`;
+            }
+        });
+
+        async function deleteDebt(debtId) {
+            try {
+                await db.collection("debts").doc(debtId).delete();
+                loadFinancialData();
+            } catch (error) {
+                console.error("Erreur lors de la suppression de la dette:", error);
+                alert("Erreur lors de la suppression de la dette.");
+            }
+        }
+
+
+        async function loadDebts() {
+            const debtList = document.getElementById('debtList');
+            debtList.innerHTML = '<p>Chargement en cours...</p>';
+            let totalDebts = 0;
+
+            try {
+                const snapshot = await db.collection('debts').where('isPaid', '==', false).get();
+                
+                debtList.innerHTML = '';
+                if (snapshot.empty) {
+                    debtList.innerHTML = '<p style="color: #ccc;">Aucune dette en cours (Passif Net).</p>';
+                    return totalDebts;
+                }
+
+                const ul = document.createElement('ul');
+                ul.className = 'debt-ul';
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const amount = parseInt(data.amount) || 0;
+                    totalDebts += amount;
+
+                    const li = document.createElement('li');
+                    li.className = 'debt-item';
+                    li.innerHTML = `
+                        <div>
+                            <span class="debt-title">${data.creditor}</span>
+                            <span class="debt-amount">${amount.toLocaleString('fr-FR')} FCFA</span>
+                        </div>
+                        <button class="btn-delete" data-id="${doc.id}">Supprimer</button>
+                    `;
+                    ul.appendChild(li);
+                });
+
+                debtList.appendChild(ul);
+                
+                // Gérer la suppression des dettes (délégation d'événement)
+                // Note: On retire l'écouteur du gestionnaire de liste pour éviter les duplications
+                const deleteBtns = debtList.querySelectorAll('.btn-delete');
+                deleteBtns.forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const debtId = e.target.dataset.id;
+                        if (confirm("Êtes-vous sûr de vouloir supprimer cette dette ?")) {
+                            await deleteDebt(debtId); 
+                        }
+                    });
+                });
+
+                return totalDebts;
+
+            } catch (error) {
+                console.error("Erreur lors du chargement des dettes:", error);
+                debtList.innerHTML = '<p style="color: red;">Erreur de chargement des dettes.</p>';
+                return totalDebts;
+            }
+        }
+
+        // =========================================================================
+        // --- LOGIQUE DE CALCUL GLOBAL (KPIs) ---
+        // =========================================================================
+        
+        async function getTotalSalesRevenue() {
+            let totalRevenue = 0;
+            try {
+                const snapshot = await db.collection('sales').get();
+                snapshot.forEach(doc => {
+                    totalRevenue += parseInt(doc.data().amount) || 0;
+                });
+                return totalRevenue;
+            } catch (error) {
+                console.error("Erreur lors de la récupération des revenus totaux:", error);
+                return 0;
+            }
+        }
+
+        async function loadFinancialData() {
+            // 1. Charger et Afficher le Capital (avec la correction du bouton)
+            const capital = await loadCapitalData();
+
+            // 2. Calculer le Total des Ventes (Entrées Brutes)
+            const totalRevenue = await getTotalSalesRevenue();
+            document.getElementById('kpi-revenue').textContent = totalRevenue.toLocaleString('fr-FR') + ' FCFA';
+            
+            // 3. Charger et Calculer les Dépenses du mois
+            const totalExpenses = await loadExpenses();
+
+            // 4. Charger et Calculer les Dettes en cours
+            const totalDebts = await loadDebts();
+
+            // 5. Calculer le Montant en Caisse Actuel
+            // Montant en Caisse = Capital + Revenus Totaux - Dépenses Totales + Dettes
+            const cashInHand = capital + totalRevenue - totalExpenses + totalDebts;
+
+            document.getElementById('kpi-cash').textContent = cashInHand.toLocaleString('fr-FR') + ' FCFA';
+        }
+
+        // =========================================================================
+        // --- SÉCURITÉ ET DÉMARRAGE ---
+        // =========================================================================
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection("profiles").doc(user.uid).get().then(docSnap => {
+                    if (!docSnap.exists || docSnap.data().role !== 'Admin') {
+                        auth.signOut();
+                        window.location.href = 'index.html';
+                    } else {
+                        loadFinancialData();
+                    }
+                }).catch(error => {
+                    console.error("Erreur de vérification de profil:", error);
+                    auth.signOut();
+                    window.location.href = 'index.html';
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await auth.signOut();
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
