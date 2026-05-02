@@ -76,7 +76,7 @@
 
                 <div class="report-card card-small">
     <h3>💸 Ventilation des Dépenses</h3>
-    <div class="chart-container" style="height:300px;">
+    <div class="chart-container" style="height:150px;">
         <canvas id="expenseBreakdownChart"></canvas>
     </div>
     <div id="expenseTable"></div>
@@ -123,17 +123,22 @@ let selectedEndDate;
 
         function initMonthPicker() {
     const picker = document.getElementById('monthPicker');
-    const now = new Date();
+    if (!picker) {
+        console.error("❌ monthPicker introuvable");
+        return;
+    }
 
+    const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
 
     picker.value = `${year}-${month}`;
-
+    
+    console.log("📅 initMonthPicker: Appel de updateSelectedDates avec", `${year}-${month}`);
     updateSelectedDates(picker.value);
 }
 
-function updateSelectedDates(value) {
+async function updateSelectedDates(value) {
     const [year, month] = value.split('-');
 
     selectedStartDate = new Date(year, month - 1, 1);
@@ -142,7 +147,8 @@ function updateSelectedDates(value) {
     document.getElementById('currentReportingPeriod').textContent =
         selectedStartDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
-    loadAllReports(); // 🔥 recharge tout
+    // Les canvas existent maintenant et n'est pas supprimés, on peut charger les rapports
+    await loadAllReports();
 }
 function renderExpenseTable(data, total) {
     let html = `
@@ -234,10 +240,22 @@ function renderExpenseTable(data, total) {
 
         // --- RENDER 1.1 : GRAPHIQUE DES VENTES PAR CATÉGORIE (Barres) ---
         function renderSalesByCategoryChart(data) {
+            console.log("🔍 renderSalesByCategoryChart appelée");
+            
+            // Vérification robuste du canvas
             const ctx = document.getElementById('salesByCategoryChart');
-            // Vérification cruciale : Si le canvas n'est pas trouvé ou si le contexte 2D n'est pas disponible
-            if (!ctx || !ctx.getContext) {
-                console.error("Erreur: Canvas 'salesByCategoryChart' non trouvé ou contexte 2D indisponible.");
+            if (!ctx) {
+                console.error("❌ Canvas 'salesByCategoryChart' non trouvé.", {
+                    allIds: Array.from(document.querySelectorAll('[id]')).map(el => el.id)
+                });
+                return;
+            }
+
+            console.log("✅ Canvas 'salesByCategoryChart' trouvé");
+
+            const canvasCtx = ctx.getContext('2d');
+            if (!canvasCtx) {
+                console.error("❌ Contexte 2D indisponible pour 'salesByCategoryChart'.");
                 return;
             }
 
@@ -250,11 +268,24 @@ function renderExpenseTable(data, total) {
             const revenues = Object.values(data);
             
             if (revenues.length === 0) {
-                 ctx.parentNode.innerHTML = '<p style="text-align: center; color: #ccc;">Aucune vente enregistrée ce mois.</p>';
+                 // ✅ NE PAS remplacer le parent du canvas ! Afficher un chart vide
+                 window.salesChart = new Chart(canvasCtx, {
+                     type: 'bar',
+                     data: { labels: [], datasets: [] },
+                     options: {
+                         responsive: true,
+                         maintainAspectRatio: false,
+                         plugins: {
+                             legend: { display: false },
+                             tooltip: { enabled: false },
+                             title: { display: true, text: 'Aucune vente ce mois', color: '#ccc' }
+                         }
+                     }
+                 });
                  return;
             }
 
-            window.salesChart = new Chart(ctx.getContext('2d'), {
+            window.salesChart = new Chart(canvasCtx, {
                 type: 'bar',
                 data: {
                     labels: categories,
@@ -395,66 +426,90 @@ function renderExpenseTable(data, total) {
 
         // --- RENDER 3.1 : GRAPHIQUE DES DÉPENSES PAR TYPE (Camembert) ---
         function renderExpenseBreakdownChart(data, totalExpenses) {
-    
+            const canvas = document.getElementById('expenseBreakdownChart');
 
-    const types = Object.keys(data);
-    const amounts = Object.values(data);
-    const canvas = document.getElementById('expenseBreakdownChart');
+            // Vérification robuste
+            if (!canvas) {
+                console.error("Erreur: Canvas 'expenseBreakdownChart' non trouvé.");
+                return;
+            }
 
-    if (!canvas) {
-        console.error("Canvas introuvable !");
-        return;
-    }
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error("Erreur: contexte 2D indisponible pour 'expenseBreakdownChart'.");
+                return;
+            }
 
-    const ctx = canvas.getContext('2d');
+            if (window.expenseChart && typeof window.expenseChart.destroy === 'function') {
+                window.expenseChart.destroy();
+            }
 
-    if (window.expenseChart && typeof window.expenseChart.destroy === 'function') {
-        window.expenseChart.destroy();
-    }
+            const types = Object.keys(data);
+            const amounts = Object.values(data);
 
-    if (totalExpenses === 0) {
-        ctx.canvas.parentNode.innerHTML = '<p style="text-align:center;color:#ccc;">Aucune dépense ce mois</p>';
-        return;
-    }
-
-    window.expenseChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: types,
-            datasets: [{
-                data: amounts,
-                backgroundColor: [
-                    '#ff4d4d',
-                    '#ff944d',
-                    '#ffd11a',
-                    '#33cc33',
-                    '#3399ff',
-                    '#cc66ff'
-                ]
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: 'white',
-                        font: { size: 14 }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let value = context.raw;
-                            let percent = ((value / totalExpenses) * 100).toFixed(1);
-                            return `${value.toLocaleString()} FCFA (${percent}%)`;
+            if (totalExpenses === 0) {
+                // ✅ NE PAS remplacer le parent du canvas ! Afficher un chart vide
+                window.expenseChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels: [], datasets: [] },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false },
+                            title: { display: true, text: 'Aucune dépense ce mois', color: '#ccc' }
                         }
                     }
+                });
+                return;
+            }
+
+            window.expenseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: types,
+                    datasets: [{
+                        data: amounts,
+                        backgroundColor: [
+                            '#ff4d4d',
+                            '#ff944d',
+                            '#ffd11a',
+                            '#33cc33',
+                            '#3399ff',
+                            '#cc66ff'
+                        ]
+                    }]
+                },
+                options: {
+    responsive: true,
+    maintainAspectRatio: false,
+
+    plugins: {
+        legend: {
+            position: 'bottom', // 🔥 IMPORTANT (au lieu de right)
+            labels: {
+                color: 'white',
+                boxWidth: 15
+            }
+        },
+        tooltip: {
+            callbacks: {
+                label: function(context) {
+                    let value = context.raw;
+                    let percent = ((value / totalExpenses) * 100).toFixed(1);
+                    return `${value.toLocaleString()} FCFA (${percent}%)`;
                 }
             }
         }
-    });
+    },
+
+    layout: {
+        padding: 10
+    }
 }
+            });
+        }
         
         // =========================================================================
         // --- 2. AXE MARGE ET FLUX DE TRÉSORERIE (Croisement) ---
@@ -497,13 +552,17 @@ function renderExpenseTable(data, total) {
         function renderCashFlowChart(totalRevenue, totalExpenses, operatingProfit) {
             const canvas = document.getElementById('cashFlowChart');
             
-            // Vérification cruciale pour éviter l'erreur de TypeError
-            if (!canvas || !canvas.getContext) {
-                console.error("Erreur: Canvas 'cashFlowChart' non trouvé ou contexte 2D indisponible.");
+            // Vérification robuste
+            if (!canvas) {
+                console.error("Erreur: Canvas 'cashFlowChart' non trouvé.");
                 return; 
             }
 
             const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error("Erreur: contexte 2D indisponible pour 'cashFlowChart'.");
+                return;
+            }
             
             // Destruction avec vérification de la fonction destroy
             if (window.cashFlowChart && typeof window.cashFlowChart.destroy === 'function') {
@@ -552,7 +611,7 @@ function renderExpenseTable(data, total) {
         // =========================================================================
 
         async function loadAllReports() {
-            await new Promise(r => setTimeout(r, 100)); // 👈 FIX timing
+            // Le DOM est déjà prêt grâce à DOMContentLoaded
             // 1. Charger les dépenses 
             const expenseData = await loadExpenseBreakdown();
             
@@ -563,35 +622,60 @@ function renderExpenseTable(data, total) {
             await loadCashFlowAnalysis(expenseData);
         }
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                db.collection("profiles").doc(user.uid).get().then(docSnap => {
-                    if (!docSnap.exists || docSnap.data().role !== 'Admin') {
-                        auth.signOut();
-                        window.location.href = 'index.html';
-                    } else {
-                        setTimeout(() => {
-    initMonthPicker();
-}, 300);
-                    }
-                }).catch(error => {
-                    console.error("Erreur de vérification de profil:", error);
-                    auth.signOut();
+        // Wrapper tout dans DOMContentLoaded pour s'assurer que le DOM est 100% prêt
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("🎯 DOMContentLoaded déclenché!");
+            console.log("📊 Nombre d'éléments avec 'chart' dans l'ID:", 
+                Array.from(document.querySelectorAll('[id*="chart"]')).length);
+            console.log("📍 Canvas trouvés:", {
+                salesChart: !!document.getElementById('salesByCategoryChart'),
+                expenseChart: !!document.getElementById('expenseBreakdownChart'),
+                cashFlowChart: !!document.getElementById('cashFlowChart')
+            });
+            
+            // ✅ Attacher LES EVENT LISTENERS EN PREMIER
+            const monthPicker = document.getElementById('monthPicker');
+            if (monthPicker) {
+                monthPicker.addEventListener('change', (e) => {
+                    console.log("📅 Event 'change' sur monthPicker:", e.target.value);
+                    updateSelectedDates(e.target.value);
+                });
+                console.log("✅ Event listener 'change' attaché au monthPicker");
+            } else {
+                console.error("❌ monthPicker non trouvé!");
+            }
+
+            const logoutBtn = document.getElementById('logoutButton');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await auth.signOut();
                     window.location.href = 'index.html';
                 });
-            } else {
-                window.location.href = 'index.html';
             }
-        });
 
-        document.getElementById('logoutButton').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await auth.signOut();
-            window.location.href = 'index.html';
+            // ✅ PUIS faire l'authentification
+            auth.onAuthStateChanged(user => {
+                console.log("🔐 onAuthStateChanged:", user ? "User logged in" : "No user");
+                if (user) {
+                    db.collection("profiles").doc(user.uid).get().then(docSnap => {
+                        if (!docSnap.exists || docSnap.data().role !== 'Admin') {
+                            auth.signOut();
+                            window.location.href = 'index.html';
+                        } else {
+                            console.log("👤 Admin role confirmed, calling initMonthPicker()");
+                            initMonthPicker();
+                        }
+                    }).catch(error => {
+                        console.error("Erreur de vérification de profil:", error);
+                        auth.signOut();
+                        window.location.href = 'index.html';
+                    });
+                } else {
+                    window.location.href = 'index.html';
+                }
+            });
         });
-        document.getElementById('monthPicker').addEventListener('change', (e) => {
-    updateSelectedDates(e.target.value);
-});
     </script>
 </body>
 </html>

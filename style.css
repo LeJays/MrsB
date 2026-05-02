@@ -553,10 +553,16 @@ button:not(.btn-primary):hover {
 
 .chart-container {
     position: relative;
-    height: 400px;
-    padding-bottom: 20px; /* Espace sous le graphique */
+    width: 100%;
+    height: 280px; /* PLUS GRAND */
+    max-height: 300px;
+    overflow: hidden; /* 🔥 EMPÊCHE LE DÉBORDEMENT */
 }
 
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
 /* Styles du Tableau de Rapport */
 .report-table {
     width: 100%;
