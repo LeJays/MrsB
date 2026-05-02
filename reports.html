@@ -33,7 +33,7 @@
 
                     <li class="nav-separator"></li>
 
-                    <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
+                    <li class="nav-item"><a href="index.html" id="logoutButton">Déconnexion</a></li>
                 </ul>
             </nav>
         </aside>
@@ -44,7 +44,9 @@
             </header>
             
             <section class="reporting-options">
-                <h2>Période d'Analyse : <span id="currentReportingPeriod">Mois Actuel</span></h2>
+                <h2>Période d'Analyse :</h2>
+<input type="month" id="monthPicker">
+<p>Mois sélectionné : <span id="currentReportingPeriod"></span></p>
             </section>
 
             <div class="report-grid-3"> <div class="report-card card-large">
@@ -73,11 +75,12 @@
                 </div>
 
                 <div class="report-card card-small">
-                    <h3>💸 Ventilation des Dépenses</h3>
-                    <div class="chart-container" style="height:300px;">
-                        <canvas id="expenseBreakdownChart"></canvas>
-                    </div>
-                </div>
+    <h3>💸 Ventilation des Dépenses</h3>
+    <div class="chart-container" style="height:300px;">
+        <canvas id="expenseBreakdownChart"></canvas>
+    </div>
+    <div id="expenseTable"></div>
+</div>
                 
                 <div class="report-card card-small">
                     <h3>💵 Bénéfice Brut Opérationnel</h3>
@@ -106,6 +109,8 @@
             appId: "1:572569813990:web:16366aac2bd2f49a7ccc27",
             measurementId: "G-KMH9EWSV04"
         };
+        let selectedStartDate;
+let selectedEndDate;
 
         var app = firebase.initializeApp(firebaseConfig);
         var auth = app.auth(); 
@@ -115,6 +120,67 @@
         const CHART_COLORS = [
             '#A56C0B', '#3399ff', '#00cc00', '#ff6666', '#ffb366', '#b366ff', '#66cc99', '#ffcc99'
         ];
+
+        function initMonthPicker() {
+    const picker = document.getElementById('monthPicker');
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+
+    picker.value = `${year}-${month}`;
+
+    updateSelectedDates(picker.value);
+}
+
+function updateSelectedDates(value) {
+    const [year, month] = value.split('-');
+
+    selectedStartDate = new Date(year, month - 1, 1);
+    selectedEndDate = new Date(year, month, 1);
+
+    document.getElementById('currentReportingPeriod').textContent =
+        selectedStartDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+    loadAllReports(); // 🔥 recharge tout
+}
+function renderExpenseTable(data, total) {
+    let html = `
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Montant</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    Object.entries(data).forEach(([type, amount]) => {
+        let percent = ((amount / total) * 100).toFixed(1);
+
+        html += `
+            <tr>
+                <td>${type}</td>
+                <td>${amount.toLocaleString()} FCFA</td>
+                <td>${percent}%</td>
+            </tr>
+        `;
+    });
+
+    html += `
+        <tr>
+            <td><strong>Total</strong></td>
+            <td><strong>${total.toLocaleString()} FCFA</strong></td>
+            <td>100%</td>
+        </tr>
+        </tbody>
+        </table>
+    `;
+
+    document.getElementById('expenseTable').innerHTML = html;
+}
         
         // =========================================================================
         // --- 1. AXE PERFORMANCE DES VENTES ---
@@ -122,7 +188,8 @@
 
         async function loadSalesPerformance() {
             try {
-                const salesRef = db.collection('sales').where('createdAt', '>=', START_OF_MONTH);
+                const salesRef = db.collection('sales').where('createdAt', '>=', selectedStartDate)
+.where('createdAt', '<', selectedEndDate);
                 const snapshot = await salesRef.get();
                 
                 let salesByCategory = {};
@@ -299,7 +366,9 @@
         
         async function loadExpenseBreakdown() {
             try {
-                const expensesRef = db.collection('expenses').where('createdAt', '>=', START_OF_MONTH);
+                const expensesRef = db.collection('expenses')
+    .where('createdAt', '>=', selectedStartDate)
+    .where('createdAt', '<', selectedEndDate);
                 const snapshot = await expensesRef.get();
                 
                 let expensesByType = {};
@@ -315,6 +384,7 @@
                 });
 
                 renderExpenseBreakdownChart(expensesByType, totalExpenses);
+                renderExpenseTable(expensesByType, totalExpenses);
                 return { totalExpenses };
 
             } catch (error) {
@@ -325,40 +395,66 @@
 
         // --- RENDER 3.1 : GRAPHIQUE DES DÉPENSES PAR TYPE (Camembert) ---
         function renderExpenseBreakdownChart(data, totalExpenses) {
-            const ctx = document.getElementById('expenseBreakdownChart').getContext('2d');
-            const types = Object.keys(data);
-            const amounts = Object.values(data);
-            
-            if (window.expenseChart && typeof window.expenseChart.destroy === 'function') {
-                window.expenseChart.destroy();
-            }
+    
 
-            if (totalExpenses === 0) {
-                 ctx.canvas.parentNode.innerHTML = '<p style="text-align: center; color: #ccc;">Aucune dépense enregistrée ce mois.</p>';
-                 return;
-            }
+    const types = Object.keys(data);
+    const amounts = Object.values(data);
+    const canvas = document.getElementById('expenseBreakdownChart');
 
-            window.expenseChart = new Chart(ctx, {
-                type: 'doughnut', // Camembert
-                data: {
-                    labels: types,
-                    datasets: [{
-                        label: 'Montant (FCFA)',
-                        data: amounts,
-                        backgroundColor: CHART_COLORS.slice(0, types.length),
-                        hoverOffset: 4
-                    }]
+    if (!canvas) {
+        console.error("Canvas introuvable !");
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    if (window.expenseChart && typeof window.expenseChart.destroy === 'function') {
+        window.expenseChart.destroy();
+    }
+
+    if (totalExpenses === 0) {
+        ctx.canvas.parentNode.innerHTML = '<p style="text-align:center;color:#ccc;">Aucune dépense ce mois</p>';
+        return;
+    }
+
+    window.expenseChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: types,
+            datasets: [{
+                data: amounts,
+                backgroundColor: [
+                    '#ff4d4d',
+                    '#ff944d',
+                    '#ffd11a',
+                    '#33cc33',
+                    '#3399ff',
+                    '#cc66ff'
+                ]
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: 'white',
+                        font: { size: 14 }
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: 'white' } },
-                        title: { display: true, text: `Total: ${totalExpenses.toLocaleString('fr-FR')} FCFA`, color: 'white' }
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let value = context.raw;
+                            let percent = ((value / totalExpenses) * 100).toFixed(1);
+                            return `${value.toLocaleString()} FCFA (${percent}%)`;
+                        }
                     }
                 }
-            });
+            }
         }
+    });
+}
         
         // =========================================================================
         // --- 2. AXE MARGE ET FLUX DE TRÉSORERIE (Croisement) ---
@@ -369,7 +465,10 @@
             
             // 1. Récupérer les ventes totales
             let totalRevenue = 0;
-            const snapshotSales = await db.collection('sales').where('createdAt', '>=', START_OF_MONTH).get();
+            const snapshotSales = await db.collection('sales')
+    .where('createdAt', '>=', selectedStartDate)
+    .where('createdAt', '<', selectedEndDate)
+    .get();
             snapshotSales.forEach(doc => {
                 totalRevenue += parseInt(doc.data().amount) || 0;
             });
@@ -453,6 +552,7 @@
         // =========================================================================
 
         async function loadAllReports() {
+            await new Promise(r => setTimeout(r, 100)); // 👈 FIX timing
             // 1. Charger les dépenses 
             const expenseData = await loadExpenseBreakdown();
             
@@ -470,7 +570,9 @@
                         auth.signOut();
                         window.location.href = 'index.html';
                     } else {
-                        loadAllReports();
+                        setTimeout(() => {
+    initMonthPicker();
+}, 300);
                     }
                 }).catch(error => {
                     console.error("Erreur de vérification de profil:", error);
@@ -487,6 +589,9 @@
             await auth.signOut();
             window.location.href = 'index.html';
         });
+        document.getElementById('monthPicker').addEventListener('change', (e) => {
+    updateSelectedDates(e.target.value);
+});
     </script>
 </body>
 </html>

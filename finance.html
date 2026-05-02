@@ -51,10 +51,10 @@
                     <h3>Revenus Bruts Totaux (Entrées)</h3>
                     <p id="kpi-revenue">0 FCFA</p>
                 </div>
-                <div class="kpi-card kpi-accent">
-                    <h3>Capital Investi</h3>
-                    <p id="kpi-capital">0 FCFA</p> 
-                </div>
+                <div class="kpi-card kpi-negative">
+    <h3>Dépenses Totales</h3>
+    <p id="kpi-expenses">0 FCFA</p>
+</div>
                 <div class="kpi-card kpi-net-cash">
                     <h3>Montant en Caisse Actuel</h3>
                     <p id="kpi-cash">0 FCFA</p>
@@ -255,9 +255,8 @@
                 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
                 
                 const snapshot = await db.collection('expenses')
-                                         .where('createdAt', '>=', startOfMonth)
-                                         .orderBy('createdAt', 'desc')
-                                         .get();
+    .orderBy('createdAt', 'desc')
+    .get();
                 
                 expenseList.innerHTML = '';
 
@@ -490,25 +489,26 @@
         }
 
         async function loadFinancialData() {
-            // 1. Charger et Afficher le Capital (avec la correction du bouton)
-            const capital = await loadCapitalData();
 
-            // 2. Calculer le Total des Ventes (Entrées Brutes)
-            const totalRevenue = await getTotalSalesRevenue();
-            document.getElementById('kpi-revenue').textContent = totalRevenue.toLocaleString('fr-FR') + ' FCFA';
-            
-            // 3. Charger et Calculer les Dépenses du mois
-            const totalExpenses = await loadExpenses();
+    // 1. Revenus
+    const totalRevenue = await getTotalSalesRevenue();
+    document.getElementById('kpi-revenue').textContent =
+        totalRevenue.toLocaleString('fr-FR') + ' FCFA';
 
-            // 4. Charger et Calculer les Dettes en cours
-            const totalDebts = await loadDebts();
+    // 2. Dépenses (GLOBAL maintenant)
+    const totalExpenses = await loadExpenses();
+    document.getElementById('kpi-expenses').textContent =
+        totalExpenses.toLocaleString('fr-FR') + ' FCFA';
 
-            // 5. Calculer le Montant en Caisse Actuel
-            // Montant en Caisse = Capital + Revenus Totaux - Dépenses Totales + Dettes
-            const cashInHand = capital + totalRevenue - totalExpenses + totalDebts;
+    // 3. Dettes
+    const totalDebts = await loadDebts();
 
-            document.getElementById('kpi-cash').textContent = cashInHand.toLocaleString('fr-FR') + ' FCFA';
-        }
+    // 4. Cash réel
+    const cashInHand = totalRevenue - totalExpenses - totalDebts;
+
+    document.getElementById('kpi-cash').textContent =
+        cashInHand.toLocaleString('fr-FR') + ' FCFA';
+}
 
         // =========================================================================
         // --- SÉCURITÉ ET DÉMARRAGE ---
