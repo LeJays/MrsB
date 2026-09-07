@@ -94,7 +94,7 @@
             <span class="close-button sale-close-button">&times;</span>
             <h3 class="modal-title">Saisir une Nouvelle Entrée (Vente)</h3>
             <form id="addSaleForm">
-                <p id="saleModalMessage" style="color: red;"></p>
+                <p id="saleModalMessage" style="color: #111111;"></p>
 
                 <label for="saleCategory">1. Catégorie du Service/Produit:</label>
                 <select id="saleCategory" required>
@@ -133,7 +133,7 @@
             <span class="close-button category-close-button">&times;</span>
             <h3 class="modal-title">Gérer les Catégories (Coiffure, Soins, etc.)</h3>
             <form id="addCategoryForm">
-                <p id="categoryModalMessage" style="color: red;"></p>
+                <p id="categoryModalMessage" style="color: #111111;"></p>
                 <label for="categoryName">Nom de la nouvelle Catégorie:</label>
                 <input type="text" id="categoryName" required>
                 <button type="submit" class="btn-primary">Ajouter</button>
@@ -148,7 +148,7 @@
             <span class="close-button service-close-button">&times;</span>
             <h3 class="modal-title">Ajouter un Service ou Produit au Catalogue</h3>
             <form id="addServiceForm">
-                <p id="serviceModalMessage" style="color: red;"></p>
+                <p id="serviceModalMessage" style="color: #111111;"></p>
                 <label for="serviceCategorySelect">Catégorie:</label>
                 <select id="serviceCategorySelect" required>
                     <option value="" disabled selected>Sélectionner une catégorie</option>
@@ -208,7 +208,7 @@
 
         const START_OF_MONTH = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         const CHART_COLORS = [
-            '#A56C0B', '#3399ff', '#00cc00', '#ff6666', '#ffb366', '#66cc99', '#ffcc99', '#8A2BE2'
+            '#D4AF37', '#111111', '#FFFFFF'
         ];
         
         // --- LISTE DES CATÉGORIES À TARIFICATION MANUELLE (Nom + Prix) ---
@@ -544,7 +544,7 @@
                         label: 'Revenu (FCFA)',
                         data: revenues,
                         backgroundColor: CHART_COLORS.slice(0, labels.length),
-                        borderColor: '#A56C0B',
+                        borderColor: '#D4AF37',
                         borderWidth: 1
                     }]
                 },
@@ -581,7 +581,7 @@
                 labels: ['Entrées (Ventes)', 'Dépenses'],
                 datasets: [{
                     data: [totalSales, totalExpenses],
-                    backgroundColor: ['#00cc00', '#ff6666'],
+                    backgroundColor: ['#D4AF37', '#111111'],
                     hoverOffset: 4
                 }]
             };
@@ -597,7 +597,7 @@
                         title: { 
                             display: true, 
                             text: `Bénéfice Brut: ${profit.toLocaleString('fr-FR')} FCFA`, 
-                            color: profit >= 0 ? '#00cc00' : '#ff6666' 
+                            color: profit >= 0 ? '#D4AF37' : '#111111'
                         }
                     }
                 }
@@ -701,7 +701,7 @@
 
             } catch (error) {
                 console.error("Erreur lors du chargement de l'historique:", error);
-                listContainer.innerHTML = '<p style="color: red;">Erreur de chargement de l\'historique des transactions.</p>';
+                listContainer.innerHTML = '<p style="color: #111111;">Erreur de chargement de l\'historique des transactions.</p>';
             }
         }
 
@@ -732,7 +732,7 @@
                 html += `
                     <tr>
                         <td>${dateString}</td>
-                        <td style="font-weight: bold; color: ${t.type.includes('Entrée') ? '#00cc00' : '#ff6666'};">${t.type}</td>
+                        <td style="font-weight: bold; color: ${t.type.includes('Entrée') ? '#D4AF37' : '#111111'};">${t.type}</td>
                         <td>${t.name}</td>
                         <td>${t.category}</td>
                         <td>${t.method}</td>
@@ -819,7 +819,7 @@ async function renderCategoryList() {
         html += `
             <li style="display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #444;">
                 <span>${doc.data().name}</span>
-                <button onclick="deleteCategory('${doc.id}')" style="background:none; border:none; color:#ff6666; cursor:pointer;">Supprimer</button>
+                <button onclick="deleteCategory('${doc.id}')" style="background:none; border:none; color:#111111; cursor:pointer;">Supprimer</button>
             </li>`;
     });
     html += '</ul>';
@@ -900,7 +900,7 @@ async function loadServices() {
                 <td>${data.category}</td>
                 <td>${data.name}</td>
                 <td>${data.price.toLocaleString()} F</td>
-                <td><button onclick="deleteService('${doc.id}')" style="background:none; border:none; color:#ff6666; cursor:pointer;">🗑️</button></td>
+                <td><button onclick="deleteService('${doc.id}')" style="background:none; border:none; color:#111111; cursor:pointer;">🗑️</button></td>
             </tr>`;
     });
     html += '</tbody></table>';

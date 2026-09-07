@@ -159,7 +159,7 @@
                 renderTable(recent);
             } catch (err) {
                 console.error(err);
-                document.getElementById('recentSalesList').innerHTML = `<p style="color:red">Erreur d'indexation. Vérifiez la console.</p>`;
+                document.getElementById('recentSalesList').innerHTML = `<p style="color:#111111">Erreur d'indexation. Vérifiez la console.</p>`;
             }
         }
 
@@ -193,7 +193,7 @@
                 });
                 container.innerHTML = html + '</tbody></table>';
             } catch (err) {
-                container.innerHTML = `<p style="color:red">Erreur : ${err.message}</p>`;
+                container.innerHTML = `<p style="color:#111111">Erreur : ${err.message}</p>`;
             }
         }
 

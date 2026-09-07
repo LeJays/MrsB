@@ -118,7 +118,7 @@ let selectedEndDate;
 
         const START_OF_MONTH = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         const CHART_COLORS = [
-            '#A56C0B', '#3399ff', '#00cc00', '#ff6666', '#ffb366', '#b366ff', '#66cc99', '#ffcc99'
+            '#D4AF37', '#111111', '#FFFFFF'
         ];
 
         function initMonthPicker() {
@@ -234,7 +234,7 @@ function renderExpenseTable(data, total) {
 
             } catch (error) {
                 console.error("Erreur lors du chargement des performances de ventes:", error);
-                document.getElementById('categoryTable').innerHTML = '<p style="color: red;">Erreur de chargement des données de ventes.</p>';
+                document.getElementById('categoryTable').innerHTML = '<p style="color: #111111;">Erreur de chargement des données de ventes.</p>';
             }
         }
 
@@ -472,12 +472,9 @@ function renderExpenseTable(data, total) {
                     datasets: [{
                         data: amounts,
                         backgroundColor: [
-                            '#ff4d4d',
-                            '#ff944d',
-                            '#ffd11a',
-                            '#33cc33',
-                            '#3399ff',
-                            '#cc66ff'
+                            '#111111',
+                            '#D4AF37',
+                            '#FFFFFF'
                         ]
                     }]
                 },
@@ -533,13 +530,13 @@ function renderExpenseTable(data, total) {
             
             // Affichage dans la carte "Bénéfice Brut Opérationnel"
             const summaryElement = document.getElementById('operatingProfitSummary');
-            const color = operatingProfit >= 0 ? '#00cc00' : '#ff6666';
+                const color = operatingProfit >= 0 ? '#D4AF37' : '#111111';
             
             summaryElement.innerHTML = `
                 <h4 style="color: #ccc; margin-bottom: 5px;">Total Entrées (Ventes)</h4>
-                <p style="font-size: 1.5em; font-weight: bold; color: #3399ff;">${totalRevenue.toLocaleString('fr-FR')} FCFA</p>
+                <p style="font-size: 1.5em; font-weight: bold; color: #D4AF37;">${totalRevenue.toLocaleString('fr-FR')} FCFA</p>
                 <h4 style="color: #ccc; margin-top: 15px; margin-bottom: 5px;">Total Sorties (Dépenses)</h4>
-                <p style="font-size: 1.5em; font-weight: bold; color: #ff6666;">${totalExpenses.toLocaleString('fr-FR')} FCFA</p>
+                <p style="font-size: 1.5em; font-weight: bold; color: #111111;">${totalExpenses.toLocaleString('fr-FR')} FCFA</p>
                 <h4 style="color: #ccc; margin-top: 25px; margin-bottom: 5px;">Bénéfice Brut</h4>
                 <p style="font-size: 2em; font-weight: bold; color: ${color};">${operatingProfit.toLocaleString('fr-FR')} FCFA</p>
             `;
@@ -577,12 +574,12 @@ function renderExpenseTable(data, total) {
                         {
                             label: 'Entrées (Ventes)',
                             data: [totalRevenue],
-                            backgroundColor: '#00cc00',
+                            backgroundColor: '#D4AF37',
                         },
                         {
                             label: 'Sorties (Dépenses)',
                             data: [totalExpenses * -1], // Afficher les dépenses en négatif pour le graphique
-                            backgroundColor: '#ff6666',
+                            backgroundColor: '#111111',
                         },
                     ]
                 },

@@ -85,7 +85,7 @@
             <span class="close-button expense-close-button">&times;</span>
             <h3 class="modal-title">Enregistrer une Nouvelle Dépense</h3>
             <form id="addExpenseForm">
-                <p id="expenseModalMessage" style="color: red;"></p>
+                <p id="expenseModalMessage" style="color: #111111;"></p>
                 
                 <select id="expenseTypeSelect" required>
                     <option value="" disabled selected>1. Type de Dépense</option>
@@ -114,7 +114,7 @@
             <span class="close-button capital-close-button">&times;</span>
             <h3 class="modal-title">Modifier l'Investissement Initial (Capital)</h3>
             <form id="updateCapitalForm">
-                <p id="capitalModalMessage" style="color: red;"></p>
+                <p id="capitalModalMessage" style="color: #111111;"></p>
                 <label for="newCapitalAmount">Nouveau Montant du Capital (FCFA):</label>
                 <input type="number" id="newCapitalAmount" min="0" step="1" required>
                 <button type="submit" class="btn-primary">Mettre à Jour le Capital</button>
@@ -127,7 +127,7 @@
             <span class="close-button debt-close-button">&times;</span>
             <h3 class="modal-title">Ajouter une Nouvelle Dette</h3>
             <form id="addDebtForm">
-                <p id="debtModalMessage" style="color: red;"></p>
+                <p id="debtModalMessage" style="color: #111111;"></p>
                 <label for="creditorName">Nom du Créancier:</label>
                 <input type="text" id="creditorName" required>
                 <label for="debtAmount">Montant de la Dette (FCFA):</label>
@@ -291,7 +291,7 @@
 
             } catch (error) {
                 console.error("Erreur lors du chargement des dépenses:", error);
-                expenseList.innerHTML = '<p style="color: red;">Erreur de chargement des dépenses. Vérifiez les règles Firestore.</p>';
+                expenseList.innerHTML = '<p style="color: #111111;">Erreur de chargement des dépenses. Vérifiez les règles Firestore.</p>';
                 return totalExpenses;
             }
         }
@@ -465,7 +465,7 @@
 
             } catch (error) {
                 console.error("Erreur lors du chargement des dettes:", error);
-                debtList.innerHTML = '<p style="color: red;">Erreur de chargement des dettes.</p>';
+                debtList.innerHTML = '<p style="color: #111111;">Erreur de chargement des dettes.</p>';
                 return totalDebts;
             }
         }
