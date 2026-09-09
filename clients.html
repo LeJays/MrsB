@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mrs. B - Clients & Fidélité</title>
+    <title>Mrs. B - Fidélité Coiffures Hommes (6+1)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
             <nav class="main-nav">
                 <ul id="dynamicNavList">
                     <!-- Navigation dynamically populated based on Admin vs Caisse role -->
-                    <li class="nav-item active"><a href="clients.html">Clients &amp; Fidélité</a></li>
+                    <li class="nav-item active"><a href="clients.html">💈 Clients Hommes (6+1)</a></li>
                     <li class="nav-separator"></li>
                     <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
                 </ul>
@@ -26,12 +26,12 @@
         <main class="main-content">
             <header class="header-bar">
                 <div>
-                    <span style="color: var(--gold); font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px;">Programme Fidélité Salon</span>
-                    <h1>Gestion des Clients &amp; Fidélité</h1>
+                    <span style="color: var(--gold); font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px;">💈 Espace Barber &amp; Coiffures Hommes</span>
+                    <h1>Clients Hommes &amp; Fidélité (6+1)</h1>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <button type="button" class="btn-primary" id="openAddClientModalBtn">
-                        <span style="font-size: 1.1rem; line-height: 1;">+</span> Nouveau Client
+                        <span style="font-size: 1.1rem; line-height: 1;">+</span> Nouveau Client Homme
                     </button>
                     <a href="javascript:history.back()" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px;">
                         &larr; Retour
@@ -39,35 +39,64 @@
                 </div>
             </header>
 
-            <!-- KPI Fidélité -->
+            <!-- BANNIÈRE D'INFORMATION RÈGLES FIREBASE / SYNCHRONISATION -->
+            <div id="permissionWarningBanner" class="alert-permission-banner" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.6rem;">⚠️</span>
+                    <div>
+                        <div style="font-weight: 700; color: #F59E0B; font-size: 0.95rem;">Stockage Local Actif (Règle Firebase requise pour le Cloud)</div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px;">
+                            Vos clients hommes et coupes sont <strong>enregistrés et utilisables immédiatement</strong> sur cet appareil. Pour synchroniser avec vos autres appareils, autorisez la collection <code>clients</code> dans votre console Firebase.
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="btn-primary" id="openRulesModalBtn" style="font-size: 0.82rem; padding: 8px 14px;">
+                        🔑 Voir la règle à copier (1 min)
+                    </button>
+                    <button type="button" class="btn-secondary" id="triggerSyncBtn" style="font-size: 0.82rem; padding: 8px 14px;">
+                        🔄 Tester la synchro
+                    </button>
+                </div>
+            </div>
+
+            <!-- CARTOUCHE EXPLICATIF DE RÈGLE MÉTIER -->
+            <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid var(--border-gold); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 1.5rem;">💈</span>
+                <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                    <strong style="color: var(--gold-light);">Règle de Fidélité Exclusivité Hommes :</strong> Ce module gère les clients de l'espace <strong>Coiffure Homme &amp; Barber</strong>. Chaque client homme cumule <strong>6 coupes payantes</strong>, et sa <strong>7ème coupe homme est automatiquement offerte (gratuite)</strong> !
+                </div>
+            </div>
+
+            <!-- KPI Fidélité Hommes -->
             <section class="kpi-grid">
                 <div class="kpi-card kpi-monthly">
-                    <h3>Total Clients Enregistrés</h3>
+                    <h3>Clients Hommes Enregistrés</h3>
                     <p id="kpi-total-clients">0</p>
                 </div>
                 <div class="kpi-card kpi-positive">
-                    <h3>7ème Coiffure Gratuite Disponible</h3>
+                    <h3>7ème Coupe Homme Gratuite Prête</h3>
                     <p id="kpi-rewards-ready">0</p>
                 </div>
                 <div class="kpi-card kpi-weekly">
-                    <h3>Total Coiffures Réalisées</h3>
+                    <h3>Total Coupes Hommes Réalisées</h3>
                     <p id="kpi-total-hairstyles">0</p>
                 </div>
             </section>
 
             <!-- Search & Filters -->
             <section class="client-search-bar">
-                <input type="text" id="clientSearchInput" class="client-search-input" placeholder="🔍 Rechercher par nom ou numéro de téléphone (ex: 0708...)...">
+                <input type="text" id="clientSearchInput" class="client-search-input" placeholder="🔍 Rechercher un client homme par nom ou téléphone (ex: M. Yao, 0708...)...">
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" class="filter-btn active" data-filter="all">Tous les Clients</button>
+                    <button type="button" class="filter-btn active" data-filter="all">Tous les Hommes</button>
                     <button type="button" class="filter-btn" data-filter="reward">🎁 7ème Gratuite Disponible</button>
-                    <button type="button" class="filter-btn" data-filter="recent">Visites Récentes</button>
+                    <button type="button" class="filter-btn" data-filter="recent">Coupes Récentes</button>
                 </div>
             </section>
 
             <!-- Clients Cards Grid -->
             <div id="clientsContainer" class="clients-grid">
-                <p style="color: var(--text-muted); padding: 24px;">Chargement de vos clients...</p>
+                <p style="color: var(--text-muted); padding: 24px;">Chargement de vos clients hommes...</p>
             </div>
         </main>
     </div>
@@ -76,24 +105,24 @@
     <div id="clientModal" class="modal">
         <div class="modal-content">
             <span class="close-button" id="closeClientModalBtn">&times;</span>
-            <h3 class="modal-title" id="clientModalTitle">Nouveau Client</h3>
+            <h3 class="modal-title" id="clientModalTitle">Nouveau Client Homme</h3>
 
             <form id="clientForm">
                 <input type="hidden" id="clientId">
                 <div>
-                    <label for="clientNameInput">Nom complet du client *</label>
-                    <input type="text" id="clientNameInput" placeholder="Ex: Marie Kouassi" required>
+                    <label for="clientNameInput">Nom complet du client homme *</label>
+                    <input type="text" id="clientNameInput" placeholder="Ex: M. Jean-Marc Kouamé" required>
                 </div>
                 <div>
                     <label for="clientPhoneInput">Numéro de Téléphone *</label>
                     <input type="text" id="clientPhoneInput" placeholder="Ex: +225 07 08 09 10 11" required>
                 </div>
                 <div>
-                    <label for="clientNotesInput">Remarques / Préférences cheveux</label>
-                    <input type="text" id="clientNotesInput" placeholder="Ex: Cuir chevelu sensible, adepte des nattes collées...">
+                    <label for="clientNotesInput">Préférences coupe, barbe ou cuir chevelu</label>
+                    <input type="text" id="clientNotesInput" placeholder="Ex: Dégradé à blanc, traçage barbe régulier, cuir chevelu sensible...">
                 </div>
 
-                <button type="submit" class="btn-primary" id="saveClientSubmitBtn">Enregistrer le Client</button>
+                <button type="submit" class="btn-primary" id="saveClientSubmitBtn">Enregistrer le Client Homme</button>
                 <p id="clientModalMessage"></p>
             </form>
         </div>
@@ -103,13 +132,13 @@
     <div id="visitModal" class="modal">
         <div class="modal-content">
             <span class="close-button" id="closeVisitModalBtn">&times;</span>
-            <h3 class="modal-title" id="visitModalTitle">Noter une Coiffure</h3>
+            <h3 class="modal-title" id="visitModalTitle">Noter une Coupe Homme</h3>
             
             <div id="visitRewardBanner" style="display: none;" class="alert-free-haircut">
                 <span style="font-size: 1.4rem;">🎁</span>
                 <div>
-                    <div style="font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Félicitations ! 7ème Coiffure Gratuite !</div>
-                    <div style="font-size: 0.78rem; opacity: 0.9;">Ce client a déjà réalisé 6 coiffures payantes. Cette 7ème prestation est offerte !</div>
+                    <div style="font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Félicitations ! 7ème Coupe Homme Gratuite !</div>
+                    <div style="font-size: 0.78rem; opacity: 0.9;">Ce client homme a déjà réalisé 6 coupes payantes. Cette 7ème coupe homme est offerte !</div>
                 </div>
             </div>
 
@@ -117,23 +146,25 @@
                 <input type="hidden" id="visitClientId">
                 
                 <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid var(--border);">
-                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Client sélectionné</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Client homme sélectionné</div>
                     <div id="visitClientNameDisplay" style="font-size: 1.05rem; font-weight: 700; color: var(--gold-light);">--</div>
                     <div id="visitClientCycleDisplay" style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px;">--</div>
                 </div>
 
                 <div>
-                    <label for="visitHairstyleInput">Coiffure réalisée *</label>
-                    <input type="text" id="visitHairstyleInput" placeholder="Ex: Tresses sénégalaises, Brushing..." required>
+                    <label for="visitHairstyleInput">Coupe homme réalisée *</label>
+                    <input type="text" id="visitHairstyleInput" placeholder="Ex: Dégradé / Fade, Taper, Traçage barbe..." required>
                     <div class="quick-hairstyles-pills">
-                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Tresses')">Tresses</span>
-                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Brushing')">Brushing</span>
-                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Nattes collées')">Nattes collées</span>
-                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Pose Perruque')">Pose Perruque</span>
-                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Tissage')">Tissage</span>
-                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Défrisage')">Défrisage</span>
-                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Soin Profond')">Soin Profond</span>
-                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Lavage & Séchage')">Lavage</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Dégradé / Fade')">Dégradé / Fade</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Coupe Simple')">Coupe Simple</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Taper Fade')">Taper Fade</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Traçage Barbe')">Traçage Barbe</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Afro Clean')">Afro Clean</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Dégradé à blanc')">Dégradé à blanc</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Taille & Soin Barbe')">Soin Barbe</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Coloration Homme')">Coloration Homme</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Wave & Shampoing')">Wave &amp; Shampoing</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Coupe Enfant Homme')">Coupe Enfant</span>
                     </div>
                 </div>
 
@@ -151,16 +182,16 @@
                 <div style="margin: 14px 0 6px; padding: 12px; border-radius: 8px; background: rgba(212, 175, 55, 0.06); border: 1px solid var(--border-gold); display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="visitIsFreeCheckbox" style="width: 20px; height: 20px; cursor: pointer;">
                     <label for="visitIsFreeCheckbox" style="margin: 0; cursor: pointer; font-size: 0.9rem; font-weight: 700; color: var(--gold-light);">
-                        🎁 Marquer comme 7ème coiffure OFFERTE (Fidélité 0 F)
+                        🎁 Marquer comme 7ème coupe homme OFFERTE (Fidélité 0 F)
                     </label>
                 </div>
 
                 <div>
-                    <label for="visitStylistInput">Coiffeuse / Coiffeur (Optionnel)</label>
-                    <input type="text" id="visitStylistInput" placeholder="Ex: Awa, Sylvie...">
+                    <label for="visitStylistInput">Barbier / Coiffeur (Optionnel)</label>
+                    <input type="text" id="visitStylistInput" placeholder="Ex: Moussa, Eric...">
                 </div>
 
-                <button type="submit" class="btn-primary" id="saveVisitSubmitBtn">Valider &amp; Enregistrer la Coiffure</button>
+                <button type="submit" class="btn-primary" id="saveVisitSubmitBtn">Valider &amp; Enregistrer la Coupe</button>
                 <p id="visitModalMessage"></p>
             </form>
         </div>
@@ -170,12 +201,54 @@
     <div id="historyModal" class="modal">
         <div class="modal-content" style="max-width: 720px;">
             <span class="close-button" id="closeHistoryModalBtn">&times;</span>
-            <h3 class="modal-title" id="historyModalTitle">Historique des Coiffures</h3>
+            <h3 class="modal-title" id="historyModalTitle">Historique des Coupes Hommes</h3>
             <p id="historyClientSubtitle" style="color: var(--gold-light); margin-top: -16px; margin-bottom: 20px; font-weight: 600;"></p>
 
             <div id="historyTableContainer" class="data-table-section" style="max-height: 400px; overflow-y: auto;">
                 <p style="padding: 20px; color: var(--text-muted);">Chargement de l'historique...</p>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL GUIDE RÈGLES FIREBASE -->
+    <div id="rulesModal" class="modal">
+        <div class="modal-content" style="max-width: 650px;">
+            <span class="close-button" id="closeRulesModalBtn">&times;</span>
+            <h3 class="modal-title">🔑 Autorisation Firestore (Règles Firebase)</h3>
+            
+            <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
+                Votre projet Firebase <strong>mrsb-15e64</strong> bloque l'enregistrement cloud car la collection <code>clients</code> n'est pas encore déclarée dans les règles de sécurité Firestore.
+            </p>
+
+            <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 16px;">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                    1. Règle à ajouter dans Firebase Console
+                </div>
+                <div id="rulesSnippetText" class="code-snippet-box">match /clients/{document=**} {
+  allow read, write: if request.auth != null;
+}</div>
+                <button type="button" class="btn-secondary" id="copyRuleSnippetBtn" style="font-size: 0.8rem; padding: 6px 14px; margin-top: 4px;">
+                    📋 Copier la règle
+                </button>
+            </div>
+
+            <div style="font-size: 0.88rem; color: var(--text-primary); line-height: 1.7; margin-bottom: 20px;">
+                <strong>Procédure rapide (1 minute) :</strong><br>
+                1. Ouvrez votre <a href="https://console.firebase.google.com/project/mrsb-15e64/firestore/rules" target="_blank" rel="noopener noreferrer" style="color: var(--gold-light); text-decoration: underline; font-weight: 700;">Console Firebase &rarr; Onglet Règles (Rules)</a>.<br>
+                2. Collez la règle ci-dessus à l'intérieur du bloc <code>match /databases/{database}/documents { ... }</code>.<br>
+                3. Cliquez sur <strong>Publier (Publish)</strong>.<br>
+                4. Revenez ici et cliquez sur <strong>Tester la synchronisation</strong> !
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn-primary" id="modalTestSyncBtn" style="flex: 1;">
+                    🔄 Tester la synchronisation maintenant
+                </button>
+                <button type="button" class="btn-secondary" onclick="document.getElementById('rulesModal').style.display='none';">
+                    Fermer
+                </button>
+            </div>
+            <p id="modalSyncResult" style="margin-top: 10px; font-size: 0.85rem; font-weight: 600;"></p>
         </div>
     </div>
 
@@ -200,9 +273,48 @@
         var auth = app.auth(); 
         var db = app.firestore(); 
 
+        const STORAGE_KEY_CLIENTS = 'mrsb_offline_clients';
+        const STORAGE_KEY_VISITS_PREFIX = 'mrsb_offline_visits_';
+
         let currentUserRole = '';
         let allClients = [];
         let currentFilter = 'all';
+        let isCloudAvailable = true;
+
+        // --- LOCAL STORAGE HELPERS ---
+        function getLocalClients() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_CLIENTS);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveLocalClients(clients) {
+            try {
+                localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify(clients));
+            } catch (e) {
+                console.error("Erreur sauvegarde locale:", e);
+            }
+        }
+
+        function getLocalVisits(clientId) {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_VISITS_PREFIX + clientId);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveLocalVisits(clientId, visits) {
+            try {
+                localStorage.setItem(STORAGE_KEY_VISITS_PREFIX + clientId, JSON.stringify(visits));
+            } catch (e) {
+                console.error("Erreur sauvegarde visites:", e);
+            }
+        }
 
         // --- 2. AUTHENTIFICATION & NAVIGATION DYNAMIQUE ---
         auth.onAuthStateChanged(async (user) => {
@@ -222,7 +334,7 @@
                 currentUserRole = docSnap.data().role || 'Caisse';
                 document.getElementById('sidebarRoleBadge').innerText = currentUserRole.toUpperCase();
                 setupNavigation(currentUserRole);
-                loadClients();
+                await loadClients();
             } catch (err) {
                 console.error("Erreur de profil:", err);
             }
@@ -234,7 +346,7 @@
                 navList.innerHTML = `
                     <li class="nav-header">Tableau de Bord</li>
                     <li class="nav-item sub-item"><a href="dashboard.html">Synthèse Globale</a></li>
-                    <li class="nav-item sub-item active"><a href="clients.html">Clients &amp; Fidélité</a></li>
+                    <li class="nav-item sub-item active"><a href="clients.html">💈 Clients Hommes (6+1)</a></li>
                     <li class="nav-separator"></li>
                     <li class="nav-header">Gestion Financière</li>
                     <li class="nav-item sub-item"><a href="finance.html">Accès Finance</a></li>
@@ -246,7 +358,7 @@
                 navList.innerHTML = `
                     <li class="nav-header">Caisse</li>
                     <li class="nav-item"><a href="caisse.html">Ma Synthèse</a></li>
-                    <li class="nav-item active"><a href="clients.html">Clients &amp; Fidélité</a></li>
+                    <li class="nav-item active"><a href="clients.html">💈 Clients Hommes (6+1)</a></li>
                     <li class="nav-separator"></li>
                     <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
                 `;
@@ -259,19 +371,19 @@
             });
         }
 
-        // --- 3. CHARGEMENT DES CLIENTS ---
+        // --- 3. CHARGEMENT DES CLIENTS (AVEC FALLBACK LOCAL TRANSPARENT) ---
         async function loadClients() {
-            const container = document.getElementById('clientsContainer');
+            allClients = [];
+            const warningBanner = document.getElementById('permissionWarningBanner');
+
             try {
+                // Essai de lecture sur Firestore Cloud
                 const snapshot = await db.collection("clients").orderBy("name").get();
-                allClients = [];
-                
-                let totalHairstyles = 0;
-                let rewardsReadyCount = 0;
+                isCloudAvailable = true;
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const client = {
+                    allClients.push({
                         id: doc.id,
                         name: data.name || 'Client sans nom',
                         phone: data.phone || '',
@@ -280,27 +392,58 @@
                         currentCycleVisits: Number(data.currentCycleVisits || 0),
                         freeHairstylesEarned: Number(data.freeHairstylesEarned || 0),
                         lastVisitAt: data.lastVisitAt ? data.lastVisitAt.toDate() : null,
-                        lastHairstyle: data.lastHairstyle || ''
-                    };
-                    allClients.push(client);
-                    totalHairstyles += client.totalVisits;
-                    if (client.currentCycleVisits === 6) {
-                        rewardsReadyCount++;
-                    }
+                        lastHairstyle: data.lastHairstyle || '',
+                        isLocal: false
+                    });
                 });
 
-                document.getElementById('kpi-total-clients').innerText = allClients.length;
-                document.getElementById('kpi-rewards-ready').innerText = rewardsReadyCount;
-                document.getElementById('kpi-total-hairstyles').innerText = totalHairstyles;
+                // Si des clients locaux non encore synchronisés existent, les fusionner
+                const localList = getLocalClients();
+                if (localList.length > 0) {
+                    localList.forEach(lc => {
+                        if (!allClients.some(c => c.id === lc.id)) {
+                            allClients.push({
+                                ...lc,
+                                lastVisitAt: lc.lastVisitAt ? new Date(lc.lastVisitAt) : null,
+                                isLocal: true
+                            });
+                        }
+                    });
+                    warningBanner.style.display = 'flex';
+                } else {
+                    warningBanner.style.display = 'none';
+                }
 
-                renderClients();
             } catch (err) {
-                console.error("Erreur chargement clients:", err);
-                container.innerHTML = `<p style="color:var(--danger); padding:20px;">Erreur de chargement des clients: ${err.message}</p>`;
+                console.warn("Firestore inacessible ou permissions manquantes:", err.message);
+                isCloudAvailable = false;
+                warningBanner.style.display = 'flex';
+
+                // Bascule automatique sur les données locales
+                const localList = getLocalClients();
+                allClients = localList.map(lc => ({
+                    ...lc,
+                    lastVisitAt: lc.lastVisitAt ? new Date(lc.lastVisitAt) : null,
+                    isLocal: true
+                }));
             }
+
+            // Calcul KPIs
+            let totalHairstyles = 0;
+            let rewardsReadyCount = 0;
+            allClients.forEach(c => {
+                totalHairstyles += c.totalVisits;
+                if (c.currentCycleVisits === 6) rewardsReadyCount++;
+            });
+
+            document.getElementById('kpi-total-clients').innerText = allClients.length;
+            document.getElementById('kpi-rewards-ready').innerText = rewardsReadyCount;
+            document.getElementById('kpi-total-hairstyles').innerText = totalHairstyles;
+
+            renderClients();
         }
 
-        // --- 4. AFFICHAGE DES CARTES CLIENTS AVEC CARTE DE FIDÉLITÉ (6 + 7ÈME OFFERTE) ---
+        // --- 4. AFFICHAGE DES CARTES CLIENTS HOMMES ---
         function renderClients() {
             const container = document.getElementById('clientsContainer');
             const searchVal = document.getElementById('clientSearchInput').value.toLowerCase().trim();
@@ -309,21 +452,17 @@
                 const matchesSearch = c.name.toLowerCase().includes(searchVal) || c.phone.toLowerCase().includes(searchVal);
                 if (!matchesSearch) return false;
 
-                if (currentFilter === 'reward') {
-                    return c.currentCycleVisits === 6;
-                }
-                if (currentFilter === 'recent') {
-                    return c.lastVisitAt !== null;
-                }
+                if (currentFilter === 'reward') return c.currentCycleVisits === 6;
+                if (currentFilter === 'recent') return c.lastVisitAt !== null;
                 return true;
             });
 
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div style="grid-column: 1 / -1; padding: 48px 20px; text-align: center; background: var(--bg-card); border-radius: var(--radius); border: 1px dashed var(--border-light);">
-                        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 12px;">Aucun client trouvé.</p>
+                        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 12px;">Aucun client homme trouvé.</p>
                         <button type="button" class="btn-primary" onclick="document.getElementById('openAddClientModalBtn').click();">
-                            + Ajouter un client maintenant
+                            + Ajouter un client homme maintenant
                         </button>
                     </div>`;
                 return;
@@ -331,45 +470,46 @@
 
             let html = '';
             filtered.forEach(c => {
-                const cycle = c.currentCycleVisits; // 0 to 6
+                const cycle = c.currentCycleVisits; // 0 à 6
                 const isReadyForFree = (cycle === 6);
                 
-                // Génération des 7 tampons de fidélité
                 let stampsHtml = '';
                 for (let i = 1; i <= 6; i++) {
                     const isDone = i <= cycle;
-                    stampsHtml += `<div class="stamp ${isDone ? 'completed' : ''}" title="Coiffure n°${i}">${isDone ? '✓ ' + i : i}</div>`;
+                    stampsHtml += `<div class="stamp ${isDone ? 'completed' : ''}" title="Coupe homme n°${i}">${isDone ? '✓ ' + i : i}</div>`;
                 }
-                // 7ème tampon spécial : cadeau
-                stampsHtml += `<div class="stamp reward-slot ${isReadyForFree ? 'unlocked' : ''}" title="7ème Coiffure Gratuite">🎁 7e</div>`;
+                stampsHtml += `<div class="stamp reward-slot ${isReadyForFree ? 'unlocked' : ''}" title="7ème Coupe Homme Gratuite">🎁 7e</div>`;
 
-                const lastDateStr = c.lastVisitAt ? c.lastVisitAt.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Aucune visite';
+                const lastDateStr = c.lastVisitAt ? c.lastVisitAt.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Aucune coupe';
 
                 html += `
                     <div class="client-card ${isReadyForFree ? 'reward-ready' : ''}">
                         <div>
                             <div class="client-header">
                                 <div>
-                                    <h3 class="client-name">${escapeHtml(c.name)}</h3>
+                                    <h3 class="client-name">
+                                        ${escapeHtml(c.name)}
+                                        ${c.isLocal ? '<span style="font-size:0.68rem; font-weight:600; color:#F59E0B; background:rgba(245,158,11,0.15); padding:2px 6px; border-radius:10px; margin-left:6px;" title="Sauvegardé sur cet appareil">Local</span>' : ''}
+                                    </h3>
                                     <div class="client-phone">
                                         <span>📞</span> <a href="tel:${escapeHtml(c.phone)}" style="text-decoration: underline;">${escapeHtml(c.phone)}</a>
                                     </div>
                                 </div>
                                 <div>
                                     ${isReadyForFree 
-                                        ? '<span class="badge-reward-ready">🎁 7e Offerte !</span>' 
-                                        : `<span class="badge-progress">${cycle}/6 coiffures</span>`}
+                                        ? '<span class="badge-reward-ready">🎁 7e Coupe Offerte !</span>' 
+                                        : `<span class="badge-progress">${cycle}/6 coupes hommes</span>`}
                                 </div>
                             </div>
 
-                            ${c.notes ? `<div class="client-notes">📝 ${escapeHtml(c.notes)}</div>` : ''}
+                            ${c.notes ? `<div class="client-notes">💈 Préférences : ${escapeHtml(c.notes)}</div>` : ''}
 
                             <!-- CARTE DE FIDÉLITÉ VISUELLE -->
                             <div class="loyalty-container">
                                 <div class="loyalty-label">
-                                    <span>Carte Fidélité</span>
+                                    <span>Carte Barber Homme</span>
                                     <span style="color: ${isReadyForFree ? '#34D399' : 'var(--gold-light)'};">
-                                        ${isReadyForFree ? '🚨 7ème OFFERTE MAINTENANT !' : (6 - cycle) + ' avant gratuite'}
+                                        ${isReadyForFree ? '🚨 7ème COUPE OFFERTE MAINTENANT !' : (6 - cycle) + ' coupes avant la gratuite'}
                                     </span>
                                 </div>
                                 <div class="loyalty-stamps">
@@ -380,12 +520,12 @@
                             ${isReadyForFree ? `
                                 <div class="alert-free-haircut">
                                     <span style="font-size: 1.2rem;">✨</span>
-                                    <span>Ce client a fait <strong>6 coiffures</strong>. Sa <strong>7ème est GRATUITE</strong> !</span>
+                                    <span>Ce client homme a cumulé <strong>6 coupes payantes</strong>. Sa <strong>7ème coupe homme est GRATUITE</strong> !</span>
                                 </div>
                             ` : ''}
 
                             <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between;">
-                                <span>Dernière : <strong>${escapeHtml(c.lastHairstyle || 'N/A')}</strong></span>
+                                <span>Dernière coupe : <strong>${escapeHtml(c.lastHairstyle || 'N/A')}</strong></span>
                                 <span>${lastDateStr}</span>
                             </div>
                         </div>
@@ -393,15 +533,15 @@
                         <div>
                             <div class="client-actions">
                                 <button type="button" class="btn-primary" onclick="openVisitModal('${c.id}')" style="${isReadyForFree ? 'background: linear-gradient(135deg, #34D399 0%, #10B981 100%) !important; color:#0B0E14 !important;' : ''}">
-                                    ${isReadyForFree ? '🎁 Valider la 7e Gratuite' : '+ Noter Coiffure'}
+                                    ${isReadyForFree ? '🎁 Valider la 7e Coupe Gratuite' : '+ Noter Coupe Homme'}
                                 </button>
                                 <button type="button" class="btn-secondary" onclick="openHistoryModal('${c.id}')">
-                                    Historique
+                                    Historique Coupes
                                 </button>
                             </div>
                             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
-                                <button type="button" class="btn-icon" title="Modifier client" onclick="editClient('${c.id}')">✏️</button>
-                                <button type="button" class="btn-icon" title="Supprimer client" style="color: var(--danger); border-color: rgba(244,63,94,0.3);" onclick="deleteClient('${c.id}')">🗑️</button>
+                                <button type="button" class="btn-icon" title="Modifier client homme" onclick="editClient('${c.id}')">✏️</button>
+                                <button type="button" class="btn-icon" title="Supprimer client homme" style="color: var(--danger); border-color: rgba(244,63,94,0.3);" onclick="deleteClient('${c.id}')">🗑️</button>
                             </div>
                         </div>
                     </div>
@@ -436,7 +576,7 @@
             document.getElementById('clientNameInput').value = '';
             document.getElementById('clientPhoneInput').value = '';
             document.getElementById('clientNotesInput').value = '';
-            clientModalTitle.innerText = "Nouveau Client";
+            clientModalTitle.innerText = "Nouveau Client Homme";
             clientModalMessage.textContent = '';
             clientModal.style.display = 'block';
             document.getElementById('clientNameInput').focus();
@@ -462,12 +602,16 @@
                 return;
             }
 
+            let savedSuccessfully = false;
+
+            // Tentative d'enregistrement dans Firestore Cloud
             try {
-                if (id) {
+                if (id && !id.startsWith('local_')) {
                     await db.collection("clients").doc(id).update({
                         name: name,
                         phone: phone,
                         notes: notes,
+                        gender: 'homme',
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 } else {
@@ -475,6 +619,7 @@
                         name: name,
                         phone: phone,
                         notes: notes,
+                        gender: 'homme',
                         totalVisits: 0,
                         currentCycleVisits: 0,
                         freeHairstylesEarned: 0,
@@ -483,13 +628,53 @@
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
+                savedSuccessfully = true;
+            } catch (err) {
+                console.warn("Échec Firestore, basculement en local:", err.message);
+                
+                // Sauvegarde de secours en LocalStorage
+                const localList = getLocalClients();
+                if (id) {
+                    const idx = localList.findIndex(c => c.id === id);
+                    if (idx >= 0) {
+                        localList[idx].name = name;
+                        localList[idx].phone = phone;
+                        localList[idx].notes = notes;
+                    }
+                } else {
+                    const newLocalClient = {
+                        id: 'local_' + Date.now(),
+                        name: name,
+                        phone: phone,
+                        notes: notes,
+                        gender: 'homme',
+                        totalVisits: 0,
+                        currentCycleVisits: 0,
+                        freeHairstylesEarned: 0,
+                        lastVisitAt: null,
+                        lastHairstyle: '',
+                        createdAt: new Date().toISOString()
+                    };
+                    localList.unshift(newLocalClient);
+                }
+                saveLocalClients(localList);
+                document.getElementById('permissionWarningBanner').style.display = 'flex';
+                savedSuccessfully = true;
 
+                clientModalMessage.style.color = '#34D399';
+                clientModalMessage.textContent = '✅ Client homme sauvegardé en local ! (Données sécurisées sur cet appareil)';
+                setTimeout(async () => {
+                    clientModal.style.display = 'none';
+                    clientForm.reset();
+                    await loadClients();
+                }, 1000);
+                return;
+            }
+
+            if (savedSuccessfully) {
                 clientModal.style.display = 'none';
                 clientForm.reset();
                 await loadClients();
-            } catch (err) {
-                clientModalMessage.style.color = 'var(--danger)';
-                clientModalMessage.textContent = `Erreur: ${err.message}`;
             }
         });
 
@@ -501,7 +686,7 @@
             document.getElementById('clientNameInput').value = client.name;
             document.getElementById('clientPhoneInput').value = client.phone;
             document.getElementById('clientNotesInput').value = client.notes || '';
-            clientModalTitle.innerText = "Modifier le Client";
+            clientModalTitle.innerText = "Modifier le Client Homme";
             clientModalMessage.textContent = '';
             clientModal.style.display = 'block';
         };
@@ -509,17 +694,22 @@
         window.deleteClient = async function(id) {
             const client = allClients.find(c => c.id === id);
             if (!client) return;
-            if (confirm(`Êtes-vous sûr de vouloir supprimer le client "${client.name}" et son historique ?`)) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le client homme "${client.name}" et son historique de coupes ?`)) {
                 try {
-                    await db.collection("clients").doc(id).delete();
-                    await loadClients();
+                    if (!id.startsWith('local_')) {
+                        await db.collection("clients").doc(id).delete();
+                    }
                 } catch (err) {
-                    alert(`Erreur lors de la suppression: ${err.message}`);
+                    console.warn("Échec suppression Cloud:", err.message);
                 }
+                // Supprime aussi du local si présent
+                const localList = getLocalClients().filter(c => c.id !== id);
+                saveLocalClients(localList);
+                await loadClients();
             }
         };
 
-        // --- 7. GESTION DU MODAL "NOTER UNE COIFFURE" & RÈGLE DE LA 7ÈME GRATUITE ---
+        // --- 7. NOTER UNE COIFFURE (AVEC SAUVEGARDE LOCALE SI PERMISSIONS MANQUANTES) ---
         const visitModal = document.getElementById('visitModal');
         const closeVisitModalBtn = document.getElementById('closeVisitModalBtn');
         const visitForm = document.getElementById('visitForm');
@@ -528,7 +718,6 @@
         const visitIsFreeCheckbox = document.getElementById('visitIsFreeCheckbox');
         const visitPriceInput = document.getElementById('visitPriceInput');
 
-        // Réglage du prix quand la case gratuite est cochée
         visitIsFreeCheckbox.addEventListener('change', () => {
             if (visitIsFreeCheckbox.checked) {
                 visitPriceInput.value = 0;
@@ -553,23 +742,21 @@
             if (isReady) {
                 visitRewardBanner.style.display = 'flex';
                 document.getElementById('visitClientCycleDisplay').innerHTML = `
-                    <span style="color:#34D399; font-weight:700;">Progression : 6 coiffures faites &rarr; 7ème OFFERTE MAINTENANT !</span>`;
+                    <span style="color:#34D399; font-weight:700;">Progression : 6 coupes hommes faites &rarr; 7ème COUPE OFFERTE MAINTENANT !</span>`;
                 visitIsFreeCheckbox.checked = true;
                 visitPriceInput.value = 0;
                 visitPriceInput.disabled = true;
             } else {
                 visitRewardBanner.style.display = 'none';
                 document.getElementById('visitClientCycleDisplay').innerHTML = `
-                    Progression : <strong>${client.currentCycleVisits}/6 coiffures faites</strong>. Encore ${6 - client.currentCycleVisits} avant la coiffure gratuite.`;
+                    Progression : <strong>${client.currentCycleVisits}/6 coupes hommes faites</strong>. Encore ${6 - client.currentCycleVisits} avant la coupe offerte.`;
                 visitIsFreeCheckbox.checked = false;
                 visitPriceInput.disabled = false;
                 visitPriceInput.value = '';
             }
 
-            // Date du jour par défaut
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('visitDateInput').value = today;
-
             document.getElementById('visitHairstyleInput').value = '';
             document.getElementById('visitStylistInput').value = '';
             visitModalMessage.textContent = '';
@@ -595,62 +782,102 @@
 
             if (!hairstyle || !dateStr) {
                 visitModalMessage.style.color = 'var(--danger)';
-                visitModalMessage.textContent = 'Veuillez saisir la coiffure et la date.';
+                visitModalMessage.textContent = 'Veuillez saisir la coupe homme et la date.';
                 return;
             }
 
             const client = allClients.find(c => c.id === clientId);
             if (!client) return;
 
-            try {
-                const visitDate = new Date(dateStr + "T12:00:00");
+            const visitDate = new Date(dateStr + "T12:00:00");
+            let newCycle = client.currentCycleVisits + 1;
+            let newFreeEarned = client.freeHairstylesEarned;
 
-                // 1. Enregistrer la visite dans la sous-collection du client
-                await db.collection("clients").doc(clientId).collection("visits").add({
+            if (isFree || client.currentCycleVisits >= 6) {
+                newCycle = 0; // Réinitialise le cycle de 7
+                newFreeEarned += 1;
+            }
+
+            let savedCloud = false;
+
+            // Tentative Cloud
+            if (!clientId.startsWith('local_')) {
+                try {
+                    await db.collection("clients").doc(clientId).collection("visits").add({
+                        hairstyle: hairstyle,
+                        price: price,
+                        isFreeReward: isFree,
+                        stylist: stylist,
+                        category: 'homme',
+                        date: firebase.firestore.Timestamp.fromDate(visitDate),
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        recordedBy: auth.currentUser ? auth.currentUser.uid : 'anon'
+                    });
+
+                    await db.collection("clients").doc(clientId).update({
+                        totalVisits: firebase.firestore.FieldValue.increment(1),
+                        currentCycleVisits: newCycle,
+                        freeHairstylesEarned: newFreeEarned,
+                        lastVisitAt: firebase.firestore.Timestamp.fromDate(visitDate),
+                        lastHairstyle: hairstyle,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    savedCloud = true;
+                } catch (err) {
+                    console.warn("Échec écriture visite Cloud:", err.message);
+                }
+            }
+
+            if (!savedCloud) {
+                // Sauvegarde locale de secours
+                const visits = getLocalVisits(clientId);
+                visits.unshift({
+                    id: 'vis_' + Date.now(),
                     hairstyle: hairstyle,
                     price: price,
                     isFreeReward: isFree,
                     stylist: stylist,
-                    date: firebase.firestore.Timestamp.fromDate(visitDate),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    recordedBy: auth.currentUser.uid
+                    category: 'homme',
+                    date: visitDate.toISOString(),
+                    createdAt: new Date().toISOString()
                 });
+                saveLocalVisits(clientId, visits);
 
-                // 2. Calcul du nouveau cycle :
-                // Si la coiffure était la 7ème offerte (ou isFree), on valide et on redémarre un cycle à 0 !
-                // Sinon on incrémente de 1.
-                let newCycle = client.currentCycleVisits + 1;
-                let newFreeEarned = client.freeHairstylesEarned;
-
-                if (isFree || client.currentCycleVisits >= 6) {
-                    newCycle = 0; // Le cycle de 7 est complété, nouveau cycle repart à 0 !
-                    newFreeEarned += 1;
+                // Mise à jour client local
+                const localList = getLocalClients();
+                const idx = localList.findIndex(c => c.id === clientId);
+                if (idx >= 0) {
+                    localList[idx].totalVisits = (localList[idx].totalVisits || 0) + 1;
+                    localList[idx].currentCycleVisits = newCycle;
+                    localList[idx].freeHairstylesEarned = newFreeEarned;
+                    localList[idx].lastVisitAt = visitDate.toISOString();
+                    localList[idx].lastHairstyle = hairstyle;
+                    saveLocalClients(localList);
+                } else {
+                    // Si c'était un client cloud qui n'a pas pu être mis à jour sur Firestore
+                    localList.unshift({
+                        ...client,
+                        totalVisits: client.totalVisits + 1,
+                        currentCycleVisits: newCycle,
+                        freeHairstylesEarned: newFreeEarned,
+                        lastVisitAt: visitDate.toISOString(),
+                        lastHairstyle: hairstyle
+                    });
+                    saveLocalClients(localList);
                 }
+                document.getElementById('permissionWarningBanner').style.display = 'flex';
+            }
 
-                await db.collection("clients").doc(clientId).update({
-                    totalVisits: firebase.firestore.FieldValue.increment(1),
-                    currentCycleVisits: newCycle,
-                    freeHairstylesEarned: newFreeEarned,
-                    lastVisitAt: firebase.firestore.Timestamp.fromDate(visitDate),
-                    lastHairstyle: hairstyle,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+            visitModal.style.display = 'none';
+            visitForm.reset();
+            await loadClients();
 
-                // Message de confirmation & fermeture
-                visitModal.style.display = 'none';
-                visitForm.reset();
-                await loadClients();
-
-                if (isFree) {
-                    alert(`🎉 La 7ème coiffure offerte a été enregistrée avec succès pour ${client.name} ! Son nouveau cycle de fidélité commence.`);
-                }
-            } catch (err) {
-                visitModalMessage.style.color = 'var(--danger)';
-                visitModalMessage.textContent = `Erreur: ${err.message}`;
+            if (isFree) {
+                alert(`🎉 La 7ème coupe homme offerte a été validée avec succès pour ${client.name} ! Son cycle de fidélité redémarre à zéro.`);
             }
         });
 
-        // --- 8. HISTORIQUE COMPLET DES COIFFURES DU CLIENT ---
+        // --- 8. HISTORIQUE COIFFURES (FUSION CLOUD + LOCAL) ---
         const historyModal = document.getElementById('historyModal');
         const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
 
@@ -663,68 +890,191 @@
             if (!client) return;
 
             document.getElementById('historyModalTitle').innerText = `Historique : ${client.name}`;
-            document.getElementById('historyClientSubtitle').innerText = `Téléphone : ${client.phone} | Total visites : ${client.totalVisits} | Coiffures offertes : ${client.freeHairstylesEarned}`;
+            document.getElementById('historyClientSubtitle').innerText = `Téléphone : ${client.phone} | Total coupes : ${client.totalVisits} | Coupes gratuites obtenues : ${client.freeHairstylesEarned}`;
             
             const container = document.getElementById('historyTableContainer');
             container.innerHTML = `<p style="padding: 20px; color: var(--text-muted);">Chargement de l'historique...</p>`;
             historyModal.style.display = 'block';
 
-            try {
-                const snap = await db.collection("clients").doc(clientId).collection("visits").orderBy("date", "desc").get();
+            let allVisits = [];
+
+            // 1. Lire Cloud
+            if (!clientId.startsWith('local_')) {
+                try {
+                    const snap = await db.collection("clients").doc(clientId).collection("visits").orderBy("date", "desc").get();
+                    snap.forEach(doc => {
+                        const v = doc.data();
+                        allVisits.push({
+                            hairstyle: v.hairstyle,
+                            price: v.price,
+                            isFreeReward: v.isFreeReward,
+                            stylist: v.stylist,
+                            date: v.date ? v.date.toDate() : null
+                        });
+                    });
+                } catch (e) {
+                    console.warn("Échec lecture historique Cloud:", e.message);
+                }
+            }
+
+            // 2. Fusionner visites locales
+            const localVis = getLocalVisits(clientId);
+            localVis.forEach(lv => {
+                allVisits.push({
+                    hairstyle: lv.hairstyle,
+                    price: lv.price,
+                    isFreeReward: lv.isFreeReward,
+                    stylist: lv.stylist,
+                    date: lv.date ? new Date(lv.date) : null
+                });
+            });
+
+            if (allVisits.length === 0) {
+                container.innerHTML = `<p style="padding: 24px; text-align: center; color: var(--text-muted);">Aucune coupe enregistrée pour le moment.</p>`;
+                return;
+            }
+
+            allVisits.sort((a, b) => (b.date || 0) - (a.date || 0));
+
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Coupe Homme</th>
+                            <th>Prix</th>
+                            <th>Barbier / Coiffeur</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            allVisits.forEach(v => {
+                const d = v.date ? v.date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '--';
+                const isFree = v.isFreeReward;
                 
-                if (snap.empty) {
-                    container.innerHTML = `<p style="padding: 24px; text-align: center; color: var(--text-muted);">Aucune coiffure enregistrée pour le moment.</p>`;
-                    return;
+                html += `
+                    <tr>
+                        <td style="color: var(--text-muted);">${d}</td>
+                        <td style="font-weight: 700; color: var(--text-primary);">${escapeHtml(v.hairstyle || 'Coupe Homme')}</td>
+                        <td style="font-weight: 700; color: ${isFree ? '#34D399' : 'var(--gold-light)'};">
+                            ${isFree ? 'OFFERTE (0 F)' : Number(v.price || 0).toLocaleString('fr-FR') + ' FCFA'}
+                        </td>
+                        <td>${escapeHtml(v.stylist || 'Non précisé')}</td>
+                        <td>
+                            ${isFree 
+                                ? '<span style="display:inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #34D399;">🎁 7e Coupe Offerte</span>' 
+                                : '<span style="display:inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; background: rgba(255,255,255,0.05); color: var(--text-secondary);">Payante</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        };
+
+        // --- 9. GESTION DU MODAL RÈGLES FIREBASE & TEST DE SYNCHRONISATION ---
+        const rulesModal = document.getElementById('rulesModal');
+        const openRulesModalBtn = document.getElementById('openRulesModalBtn');
+        const closeRulesModalBtn = document.getElementById('closeRulesModalBtn');
+        const copyRuleSnippetBtn = document.getElementById('copyRuleSnippetBtn');
+        const triggerSyncBtn = document.getElementById('triggerSyncBtn');
+        const modalTestSyncBtn = document.getElementById('modalTestSyncBtn');
+        const modalSyncResult = document.getElementById('modalSyncResult');
+
+        openRulesModalBtn.addEventListener('click', () => {
+            rulesModal.style.display = 'block';
+            modalSyncResult.textContent = '';
+        });
+
+        closeRulesModalBtn.addEventListener('click', () => {
+            rulesModal.style.display = 'none';
+        });
+
+        copyRuleSnippetBtn.addEventListener('click', () => {
+            const snippet = document.getElementById('rulesSnippetText').innerText;
+            navigator.clipboard.writeText(snippet).then(() => {
+                copyRuleSnippetBtn.innerText = '✅ Règle copiée !';
+                setTimeout(() => { copyRuleSnippetBtn.innerText = '📋 Copier la règle'; }, 2000);
+            });
+        });
+
+        async function trySyncToFirebase() {
+            modalSyncResult.style.color = 'var(--text-muted)';
+            modalSyncResult.textContent = 'Test de la connexion Firebase en cours...';
+
+            try {
+                // Test d'écriture sonde
+                const probeRef = await db.collection("clients").add({
+                    _probe: true,
+                    testAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await probeRef.delete();
+
+                // Si le test réussit, synchroniser les clients locaux !
+                const localList = getLocalClients();
+                let syncedCount = 0;
+
+                for (const lc of localList) {
+                    const docRef = await db.collection("clients").add({
+                        name: lc.name,
+                        phone: lc.phone,
+                        notes: lc.notes || '',
+                        totalVisits: lc.totalVisits || 0,
+                        currentCycleVisits: lc.currentCycleVisits || 0,
+                        freeHairstylesEarned: lc.freeHairstylesEarned || 0,
+                        lastHairstyle: lc.lastHairstyle || '',
+                        lastVisitAt: lc.lastVisitAt ? firebase.firestore.Timestamp.fromDate(new Date(lc.lastVisitAt)) : null,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Sync visites associées
+                    const visits = getLocalVisits(lc.id);
+                    for (const v of visits) {
+                        await docRef.collection("visits").add({
+                            hairstyle: v.hairstyle,
+                            price: v.price,
+                            isFreeReward: v.isFreeReward,
+                            stylist: v.stylist || '',
+                            date: v.date ? firebase.firestore.Timestamp.fromDate(new Date(v.date)) : null,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                    localStorage.removeItem(STORAGE_KEY_VISITS_PREFIX + lc.id);
+                    syncedCount++;
                 }
 
-                let html = `
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Coiffure</th>
-                                <th>Prix</th>
-                                <th>Coiffeuse</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
+                localStorage.removeItem(STORAGE_KEY_CLIENTS);
+                document.getElementById('permissionWarningBanner').style.display = 'none';
 
-                snap.forEach(doc => {
-                    const v = doc.data();
-                    const d = v.date ? v.date.toDate().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '--';
-                    const isFree = v.isFreeReward;
-                    
-                    html += `
-                        <tr>
-                            <td style="color: var(--text-muted);">${d}</td>
-                            <td style="font-weight: 700; color: var(--text-primary);">${escapeHtml(v.hairstyle || 'Coiffure')}</td>
-                            <td style="font-weight: 700; color: ${isFree ? '#34D399' : 'var(--gold-light)'};">
-                                ${isFree ? 'OFFERTE (0 F)' : Number(v.price || 0).toLocaleString('fr-FR') + ' FCFA'}
-                            </td>
-                            <td>${escapeHtml(v.stylist || 'Non précisé')}</td>
-                            <td>
-                                ${isFree 
-                                    ? '<span style="display:inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #34D399;">🎁 7e Offerte</span>' 
-                                    : '<span style="display:inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; background: rgba(255,255,255,0.05); color: var(--text-secondary);">Payante</span>'}
-                            </td>
-                        </tr>
-                    `;
-                });
+                modalSyncResult.style.color = '#34D399';
+                modalSyncResult.textContent = `🎉 Succès ! Vos règles Firebase sont actives. ${syncedCount} client(s) synchronisé(s) vers le Cloud.`;
+                await loadClients();
+                
+                setTimeout(() => {
+                    rulesModal.style.display = 'none';
+                }, 2000);
 
-                html += `</tbody></table>`;
-                container.innerHTML = html;
             } catch (err) {
-                container.innerHTML = `<p style="color: var(--danger); padding: 20px;">Erreur de chargement: ${err.message}</p>`;
+                modalSyncResult.style.color = 'var(--danger)';
+                modalSyncResult.textContent = `❌ La règle n'est pas encore appliquée sur Firebase. Erreur : ${err.message}. Avez-vous cliqué sur "Publier" dans la console Firebase ?`;
             }
-        };
+        }
+
+        modalTestSyncBtn.addEventListener('click', trySyncToFirebase);
+        triggerSyncBtn.addEventListener('click', () => {
+            rulesModal.style.display = 'block';
+            trySyncToFirebase();
+        });
 
         // Fermeture des modales par clic extérieur
         window.addEventListener('click', (e) => {
             if (e.target === clientModal) clientModal.style.display = 'none';
             if (e.target === visitModal) visitModal.style.display = 'none';
             if (e.target === historyModal) historyModal.style.display = 'none';
+            if (e.target === rulesModal) rulesModal.style.display = 'none';
         });
 
         function escapeHtml(text) {

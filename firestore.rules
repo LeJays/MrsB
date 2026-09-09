@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Règle pour les profils utilisateurs (connexion, rôles Admin / Caisse)
+    match /profiles/{userId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Règle pour les ventes (caisse et dashboard)
+    match /sales/{saleId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Règle pour les catégories de prestations
+    match /categories/{categoryId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Règle pour les services et tarifs
+    match /services/{serviceId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Règle pour les dépenses (gestion financière)
+    match /expenses/{expenseId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Règle pour les dettes
+    match /debts/{debtId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Règle pour la configuration (capital, etc.)
+    match /config/{configId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // NOUVELLE RÈGLE : Clients et Historique des visites / coiffures (Programme Fidélité 6+1)
+    match /clients/{clientId} {
+      allow read, write: if request.auth != null;
+      
+      match /visits/{visitId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+
+    // Règle de couverture récursive pour tout document sous clients
+    match /clients/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
