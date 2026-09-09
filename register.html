@@ -11,29 +11,43 @@
     <div class="auth-container">
         
         <div class="logo-container">
-              
              <img src="IMG_1959.jpg" alt="Logo Mrs. B" class="logo-img">
         </div>
         
-        <h2>Créer un Compte d'Accès</h2>
+        <h2>Créer un Compte</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: -6px; margin-bottom: 8px;">Accès Personnel Mrs. B</p>
 
         <form id="registerForm">
-            <input type="email" id="email" placeholder="Email / Identifiant" required>
-            <input type="password" id="password" placeholder="Mot de passe" required>
-            <input type="password" id="confirmPassword" placeholder="Confirmer Mot de passe" required>
-            <input type="text" id="name" placeholder="Nom et Prénom (Optionnel)" >
-            
-            <select id="role" required>
-                <option value="" disabled selected>Choisir le rôle (Admin ou Caisse)</option>
-                <option value="Caisse">Caisse</option>
-                <option value="Admin">Admin</option>
-            </select>
+            <div>
+                <label for="email" style="display: block; margin-bottom: 6px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Adresse Email</label>
+                <input type="email" id="email" placeholder="nom@exemple.com" required autocomplete="username">
+            </div>
+            <div>
+                <label for="password" style="display: block; margin-bottom: 6px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Mot de passe</label>
+                <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            <div>
+                <label for="confirmPassword" style="display: block; margin-bottom: 6px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Confirmer Mot de passe</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            <div>
+                <label for="name" style="display: block; margin-bottom: 6px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Nom et Prénom (Optionnel)</label>
+                <input type="text" id="name" placeholder="Ex: Marie Kouassi">
+            </div>
+            <div>
+                <label for="role" style="display: block; margin-bottom: 6px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Rôle attribué</label>
+                <select id="role" required>
+                    <option value="" disabled selected>Choisir le rôle (Admin ou Caisse)</option>
+                    <option value="Caisse">Caisse (Point de Vente)</option>
+                    <option value="Admin">Administrateur (Gestion &amp; Finance)</option>
+                </select>
+            </div>
 
             <button type="submit">Créer le Compte</button>
         </form>
 
         <p class="login-prompt">Vous avez déjà un compte ? <a href="index.html">Se connecter</a></p>
-        <p id="message" style="color: #111111; margin-top: 10px;"></p>
+        <p id="message" style="color: var(--danger); margin-top: 12px;"></p>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>

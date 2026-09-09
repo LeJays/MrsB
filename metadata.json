@@ -1,0 +1,8 @@
+{
+  "name": "Mrs. B",
+  "description": "Système de gestion, caisse et fidélité client (6 coiffures réalisées = 7ème offerte) pour le salon Mrs. B.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

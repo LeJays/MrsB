@@ -17,6 +17,7 @@
                 <ul>
                     <li class="nav-item active"><a href="caisse.html">Ma Synthèse</a></li>
                     <li class="nav-item" id="openSaleModalLink"><a href="#">Saisie Vente</a></li> 
+                    <li class="nav-item"><a href="clients.html">Clients &amp; Fidélité</a></li>
                     <li class="nav-item" id="openTransactionHistory"><a href="#">Mon Historique</a></li>
                     <li class="nav-separator"></li>
                     <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
@@ -26,7 +27,18 @@
 
         <main class="main-content">
             <header class="header-bar">
-                <h1 id="welcomeTitle">Chargement de votre profil...</h1>
+                <div>
+                    <span style="color: var(--gold); font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px;">Point de Vente &amp; Caisse</span>
+                    <h1 id="welcomeTitle">Chargement de votre profil...</h1>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <a href="clients.html" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px;">
+                        👥 Clients &amp; Fidélité (6+1)
+                    </a>
+                    <button type="button" class="btn-primary" onclick="document.getElementById('openSaleModalLink').click();">
+                        <span style="font-size: 1.1rem; line-height: 1;">+</span> Nouvelle Vente
+                    </button>
+                </div>
             </header>
 
             <section class="kpi-grid">
@@ -46,9 +58,9 @@
             
             <section class="dashboard-charts-grid">
                 <div class="chart-block full-width">
-                    <h2>Mes Dernières Ventes</h2>
+                    <h2>Mes Dernières Ventes du Jour</h2>
                     <div id="recentSalesList" class="data-table-section">
-                        <p>Initialisation...</p>
+                        <p style="padding: 20px; color: var(--text-muted);">Initialisation...</p>
                     </div>
                 </div>
             </section>
@@ -153,20 +165,20 @@
                     }
                 });
 
-                document.getElementById('kpi-daily-sales').innerText = dTotal.toLocaleString() + " F";
+                document.getElementById('kpi-daily-sales').innerText = dTotal.toLocaleString('fr-FR') + " F";
                 document.getElementById('kpi-daily-transactions').innerText = dCount;
-                document.getElementById('kpi-monthly-sales').innerText = mTotal.toLocaleString() + " F";
+                document.getElementById('kpi-monthly-sales').innerText = mTotal.toLocaleString('fr-FR') + " F";
                 renderTable(recent);
             } catch (err) {
                 console.error(err);
-                document.getElementById('recentSalesList').innerHTML = `<p style="color:#111111">Erreur d'indexation. Vérifiez la console.</p>`;
+                document.getElementById('recentSalesList').innerHTML = `<p style="color:var(--danger); padding:20px;">Erreur d'indexation. Vérifiez la console.</p>`;
             }
         }
 
         // --- CHARGEMENT DE L'HISTORIQUE COMPLET (Fonction ajoutée) ---
         async function loadTransactionHistory() {
             const container = document.getElementById('fullHistoryList');
-            container.innerHTML = "<p>Chargement...</p>";
+            container.innerHTML = "<p style='padding:16px; color:var(--text-muted);'>Chargement...</p>";
             const uid = auth.currentUser.uid;
 
             try {
@@ -176,7 +188,7 @@
                                      .get();
 
                 if (snap.empty) {
-                    container.innerHTML = "<p>Aucune transaction trouvée.</p>";
+                    container.innerHTML = "<p style='padding:20px; color:var(--text-muted); text-align:center;'>Aucune transaction trouvée.</p>";
                     return;
                 }
 
@@ -184,26 +196,31 @@
                 snap.forEach(doc => {
                     const d = doc.data();
                     const dateStr = d.createdAt ? d.createdAt.toDate().toLocaleDateString('fr-FR') : '--';
+                    const method = d.paymentMethod || 'Autre';
+                    const badgeClass = method === 'Cash' 
+                        ? 'background: var(--success-bg); color: #34D399;' 
+                        : (method === 'Mobile Money' ? 'background: var(--info-bg); color: #38BDF8;' : 'background: rgba(245, 158, 11, 0.15); color: #F59E0B;');
+
                     html += `<tr>
                         <td>${dateStr}</td>
-                        <td>${d.product}</td>
-                        <td>${d.amount.toLocaleString()} F</td>
-                        <td>${d.paymentMethod}</td>
+                        <td style="font-weight: 600; color: var(--text-primary);">${d.product}</td>
+                        <td style="font-weight: 700; color: var(--gold-light);">${d.amount.toLocaleString('fr-FR')} FCFA</td>
+                        <td><span style="display:inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; ${badgeClass}">${method}</span></td>
                     </tr>`;
                 });
                 container.innerHTML = html + '</tbody></table>';
             } catch (err) {
-                container.innerHTML = `<p style="color:#111111">Erreur : ${err.message}</p>`;
+                container.innerHTML = `<p style="color:var(--danger); padding:16px;">Erreur : ${err.message}</p>`;
             }
         }
 
         function renderTable(sales) {
             const container = document.getElementById('recentSalesList');
-            if (sales.length === 0) { container.innerHTML = "Aucune vente aujourd'hui."; return; }
+            if (sales.length === 0) { container.innerHTML = "<p style='padding:20px; color:var(--text-muted); text-align:center;'>Aucune vente enregistrée aujourd'hui.</p>"; return; }
             let html = '<table class="data-table"><thead><tr><th>Heure</th><th>Service</th><th>Montant</th></tr></thead><tbody>';
             sales.forEach(s => {
                 const time = s.createdAt ? s.createdAt.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--';
-                html += `<tr><td>${time}</td><td>${s.product}</td><td>${s.amount.toLocaleString()} F</td></tr>`;
+                html += `<tr><td style="color:var(--text-muted);">${time}</td><td style="font-weight: 600; color: var(--text-primary);">${s.product}</td><td style="font-weight: 700; color: var(--gold-light);">${s.amount.toLocaleString('fr-FR')} FCFA</td></tr>`;
             });
             container.innerHTML = html + '</tbody></table>';
         }

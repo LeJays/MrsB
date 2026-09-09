@@ -18,7 +18,8 @@
            <nav class="main-nav">
             <ul>
                 <li class="nav-header">Tableau de Bord</li>
-                <li class="nav-item sub-item active"><a href="dashboard.html">Synthèse Globale</a></li>
+                <li class="nav-item sub-item"><a href="dashboard.html">Synthèse Globale</a></li>
+                <li class="nav-item sub-item"><a href="clients.html">Clients &amp; Fidélité</a></li>
                 
                 <li class="nav-separator"></li>
                 
@@ -43,7 +44,18 @@
 
         <main class="main-content">
             <header class="header-bar">
-                <h1>Gestion Financière (Finance)</h1>
+                <div>
+                    <span style="color: var(--gold); font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px;">Trésorerie &amp; Comptabilité</span>
+                    <h1>Gestion Financière</h1>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button type="button" class="btn-primary" onclick="document.getElementById('openExpenseModalBtn').click();">
+                        + Nouvelle Dépense
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="document.getElementById('openDebtModalBtn').click();">
+                        + Ajouter Dette
+                    </button>
+                </div>
             </header>
             
             <section class="kpi-grid finance-kpi">
@@ -52,9 +64,9 @@
                     <p id="kpi-revenue">0 FCFA</p>
                 </div>
                 <div class="kpi-card kpi-negative">
-    <h3>Dépenses Totales</h3>
-    <p id="kpi-expenses">0 FCFA</p>
-</div>
+                    <h3>Dépenses Totales</h3>
+                    <p id="kpi-expenses">0 FCFA</p>
+                </div>
                 <div class="kpi-card kpi-net-cash">
                     <h3>Montant en Caisse Actuel</h3>
                     <p id="kpi-cash">0 FCFA</p>

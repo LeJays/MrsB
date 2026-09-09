@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs. B - Clients & Fidélité</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-container-dash">
+                <img src="IMG_1959.jpg" alt="Logo Mrs. B" class="logo-sidebar">
+                <p id="sidebarRoleBadge">CHARGEMENT...</p>
+            </div>
+            <nav class="main-nav">
+                <ul id="dynamicNavList">
+                    <!-- Navigation dynamically populated based on Admin vs Caisse role -->
+                    <li class="nav-item active"><a href="clients.html">Clients &amp; Fidélité</a></li>
+                    <li class="nav-separator"></li>
+                    <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header-bar">
+                <div>
+                    <span style="color: var(--gold); font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px;">Programme Fidélité Salon</span>
+                    <h1>Gestion des Clients &amp; Fidélité</h1>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button type="button" class="btn-primary" id="openAddClientModalBtn">
+                        <span style="font-size: 1.1rem; line-height: 1;">+</span> Nouveau Client
+                    </button>
+                    <a href="javascript:history.back()" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px;">
+                        &larr; Retour
+                    </a>
+                </div>
+            </header>
+
+            <!-- KPI Fidélité -->
+            <section class="kpi-grid">
+                <div class="kpi-card kpi-monthly">
+                    <h3>Total Clients Enregistrés</h3>
+                    <p id="kpi-total-clients">0</p>
+                </div>
+                <div class="kpi-card kpi-positive">
+                    <h3>7ème Coiffure Gratuite Disponible</h3>
+                    <p id="kpi-rewards-ready">0</p>
+                </div>
+                <div class="kpi-card kpi-weekly">
+                    <h3>Total Coiffures Réalisées</h3>
+                    <p id="kpi-total-hairstyles">0</p>
+                </div>
+            </section>
+
+            <!-- Search & Filters -->
+            <section class="client-search-bar">
+                <input type="text" id="clientSearchInput" class="client-search-input" placeholder="🔍 Rechercher par nom ou numéro de téléphone (ex: 0708...)...">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="filter-btn active" data-filter="all">Tous les Clients</button>
+                    <button type="button" class="filter-btn" data-filter="reward">🎁 7ème Gratuite Disponible</button>
+                    <button type="button" class="filter-btn" data-filter="recent">Visites Récentes</button>
+                </div>
+            </section>
+
+            <!-- Clients Cards Grid -->
+            <div id="clientsContainer" class="clients-grid">
+                <p style="color: var(--text-muted); padding: 24px;">Chargement de vos clients...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL NOUVEAU / MODIFIER CLIENT -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeClientModalBtn">&times;</span>
+            <h3 class="modal-title" id="clientModalTitle">Nouveau Client</h3>
+
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                <div>
+                    <label for="clientNameInput">Nom complet du client *</label>
+                    <input type="text" id="clientNameInput" placeholder="Ex: Marie Kouassi" required>
+                </div>
+                <div>
+                    <label for="clientPhoneInput">Numéro de Téléphone *</label>
+                    <input type="text" id="clientPhoneInput" placeholder="Ex: +225 07 08 09 10 11" required>
+                </div>
+                <div>
+                    <label for="clientNotesInput">Remarques / Préférences cheveux</label>
+                    <input type="text" id="clientNotesInput" placeholder="Ex: Cuir chevelu sensible, adepte des nattes collées...">
+                </div>
+
+                <button type="submit" class="btn-primary" id="saveClientSubmitBtn">Enregistrer le Client</button>
+                <p id="clientModalMessage"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NOTER UNE COIFFURE -->
+    <div id="visitModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeVisitModalBtn">&times;</span>
+            <h3 class="modal-title" id="visitModalTitle">Noter une Coiffure</h3>
+            
+            <div id="visitRewardBanner" style="display: none;" class="alert-free-haircut">
+                <span style="font-size: 1.4rem;">🎁</span>
+                <div>
+                    <div style="font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Félicitations ! 7ème Coiffure Gratuite !</div>
+                    <div style="font-size: 0.78rem; opacity: 0.9;">Ce client a déjà réalisé 6 coiffures payantes. Cette 7ème prestation est offerte !</div>
+                </div>
+            </div>
+
+            <form id="visitForm">
+                <input type="hidden" id="visitClientId">
+                
+                <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid var(--border);">
+                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Client sélectionné</div>
+                    <div id="visitClientNameDisplay" style="font-size: 1.05rem; font-weight: 700; color: var(--gold-light);">--</div>
+                    <div id="visitClientCycleDisplay" style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px;">--</div>
+                </div>
+
+                <div>
+                    <label for="visitHairstyleInput">Coiffure réalisée *</label>
+                    <input type="text" id="visitHairstyleInput" placeholder="Ex: Tresses sénégalaises, Brushing..." required>
+                    <div class="quick-hairstyles-pills">
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Tresses')">Tresses</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Brushing')">Brushing</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Nattes collées')">Nattes collées</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Pose Perruque')">Pose Perruque</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Tissage')">Tissage</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Défrisage')">Défrisage</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Soin Profond')">Soin Profond</span>
+                        <span class="hairstyle-pill" onclick="selectQuickHairstyle('Lavage & Séchage')">Lavage</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
+                        <label for="visitPriceInput">Prix payé (FCFA)</label>
+                        <input type="number" id="visitPriceInput" placeholder="0" min="0" value="0">
+                    </div>
+                    <div style="flex: 1; min-width: 140px;">
+                        <label for="visitDateInput">Date</label>
+                        <input type="date" id="visitDateInput" required>
+                    </div>
+                </div>
+
+                <div style="margin: 14px 0 6px; padding: 12px; border-radius: 8px; background: rgba(212, 175, 55, 0.06); border: 1px solid var(--border-gold); display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="visitIsFreeCheckbox" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label for="visitIsFreeCheckbox" style="margin: 0; cursor: pointer; font-size: 0.9rem; font-weight: 700; color: var(--gold-light);">
+                        🎁 Marquer comme 7ème coiffure OFFERTE (Fidélité 0 F)
+                    </label>
+                </div>
+
+                <div>
+                    <label for="visitStylistInput">Coiffeuse / Coiffeur (Optionnel)</label>
+                    <input type="text" id="visitStylistInput" placeholder="Ex: Awa, Sylvie...">
+                </div>
+
+                <button type="submit" class="btn-primary" id="saveVisitSubmitBtn">Valider &amp; Enregistrer la Coiffure</button>
+                <p id="visitModalMessage"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL HISTORIQUE COIFFURES DU CLIENT -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content" style="max-width: 720px;">
+            <span class="close-button" id="closeHistoryModalBtn">&times;</span>
+            <h3 class="modal-title" id="historyModalTitle">Historique des Coiffures</h3>
+            <p id="historyClientSubtitle" style="color: var(--gold-light); margin-top: -16px; margin-bottom: 20px; font-weight: 600;"></p>
+
+            <div id="historyTableContainer" class="data-table-section" style="max-height: 400px; overflow-y: auto;">
+                <p style="padding: 20px; color: var(--text-muted);">Chargement de l'historique...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // --- 1. CONFIGURATION FIREBASE ---
+        var firebaseConfig = {
+            apiKey: "AIzaSyDG0GUDkf-suk_NQcGBQWQPDnOosdC21ew",
+            authDomain: "mrsb-15e64.firebaseapp.com",
+            projectId: "mrsb-15e64",
+            storageBucket: "mrsb-15e64.firebasestorage.app",
+            messagingSenderId: "572569813990",
+            appId: "1:572569813990:web:16366aac2bd2f49a7ccc27",
+            measurementId: "G-KMH9EWSV04"
+        };
+
+        var app = firebase.initializeApp(firebaseConfig);
+        var auth = app.auth(); 
+        var db = app.firestore(); 
+
+        let currentUserRole = '';
+        let allClients = [];
+        let currentFilter = 'all';
+
+        // --- 2. AUTHENTIFICATION & NAVIGATION DYNAMIQUE ---
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const docSnap = await db.collection("profiles").doc(user.uid).get();
+                if (!docSnap.exists) {
+                    await auth.signOut();
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                currentUserRole = docSnap.data().role || 'Caisse';
+                document.getElementById('sidebarRoleBadge').innerText = currentUserRole.toUpperCase();
+                setupNavigation(currentUserRole);
+                loadClients();
+            } catch (err) {
+                console.error("Erreur de profil:", err);
+            }
+        });
+
+        function setupNavigation(role) {
+            const navList = document.getElementById('dynamicNavList');
+            if (role === 'Admin') {
+                navList.innerHTML = `
+                    <li class="nav-header">Tableau de Bord</li>
+                    <li class="nav-item sub-item"><a href="dashboard.html">Synthèse Globale</a></li>
+                    <li class="nav-item sub-item active"><a href="clients.html">Clients &amp; Fidélité</a></li>
+                    <li class="nav-separator"></li>
+                    <li class="nav-header">Gestion Financière</li>
+                    <li class="nav-item sub-item"><a href="finance.html">Accès Finance</a></li>
+                    <li class="nav-item sub-item"><a href="reports.html">Rapports &amp; Stats</a></li>
+                    <li class="nav-separator"></li>
+                    <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
+                `;
+            } else {
+                navList.innerHTML = `
+                    <li class="nav-header">Caisse</li>
+                    <li class="nav-item"><a href="caisse.html">Ma Synthèse</a></li>
+                    <li class="nav-item active"><a href="clients.html">Clients &amp; Fidélité</a></li>
+                    <li class="nav-separator"></li>
+                    <li class="nav-item"><a href="#" id="logoutButton">Déconnexion</a></li>
+                `;
+            }
+
+            document.getElementById('logoutButton').addEventListener('click', async (e) => {
+                e.preventDefault();
+                await auth.signOut();
+                window.location.href = 'index.html';
+            });
+        }
+
+        // --- 3. CHARGEMENT DES CLIENTS ---
+        async function loadClients() {
+            const container = document.getElementById('clientsContainer');
+            try {
+                const snapshot = await db.collection("clients").orderBy("name").get();
+                allClients = [];
+                
+                let totalHairstyles = 0;
+                let rewardsReadyCount = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const client = {
+                        id: doc.id,
+                        name: data.name || 'Client sans nom',
+                        phone: data.phone || '',
+                        notes: data.notes || '',
+                        totalVisits: Number(data.totalVisits || 0),
+                        currentCycleVisits: Number(data.currentCycleVisits || 0),
+                        freeHairstylesEarned: Number(data.freeHairstylesEarned || 0),
+                        lastVisitAt: data.lastVisitAt ? data.lastVisitAt.toDate() : null,
+                        lastHairstyle: data.lastHairstyle || ''
+                    };
+                    allClients.push(client);
+                    totalHairstyles += client.totalVisits;
+                    if (client.currentCycleVisits === 6) {
+                        rewardsReadyCount++;
+                    }
+                });
+
+                document.getElementById('kpi-total-clients').innerText = allClients.length;
+                document.getElementById('kpi-rewards-ready').innerText = rewardsReadyCount;
+                document.getElementById('kpi-total-hairstyles').innerText = totalHairstyles;
+
+                renderClients();
+            } catch (err) {
+                console.error("Erreur chargement clients:", err);
+                container.innerHTML = `<p style="color:var(--danger); padding:20px;">Erreur de chargement des clients: ${err.message}</p>`;
+            }
+        }
+
+        // --- 4. AFFICHAGE DES CARTES CLIENTS AVEC CARTE DE FIDÉLITÉ (6 + 7ÈME OFFERTE) ---
+        function renderClients() {
+            const container = document.getElementById('clientsContainer');
+            const searchVal = document.getElementById('clientSearchInput').value.toLowerCase().trim();
+
+            let filtered = allClients.filter(c => {
+                const matchesSearch = c.name.toLowerCase().includes(searchVal) || c.phone.toLowerCase().includes(searchVal);
+                if (!matchesSearch) return false;
+
+                if (currentFilter === 'reward') {
+                    return c.currentCycleVisits === 6;
+                }
+                if (currentFilter === 'recent') {
+                    return c.lastVisitAt !== null;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; padding: 48px 20px; text-align: center; background: var(--bg-card); border-radius: var(--radius); border: 1px dashed var(--border-light);">
+                        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 12px;">Aucun client trouvé.</p>
+                        <button type="button" class="btn-primary" onclick="document.getElementById('openAddClientModalBtn').click();">
+                            + Ajouter un client maintenant
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(c => {
+                const cycle = c.currentCycleVisits; // 0 to 6
+                const isReadyForFree = (cycle === 6);
+                
+                // Génération des 7 tampons de fidélité
+                let stampsHtml = '';
+                for (let i = 1; i <= 6; i++) {
+                    const isDone = i <= cycle;
+                    stampsHtml += `<div class="stamp ${isDone ? 'completed' : ''}" title="Coiffure n°${i}">${isDone ? '✓ ' + i : i}</div>`;
+                }
+                // 7ème tampon spécial : cadeau
+                stampsHtml += `<div class="stamp reward-slot ${isReadyForFree ? 'unlocked' : ''}" title="7ème Coiffure Gratuite">🎁 7e</div>`;
+
+                const lastDateStr = c.lastVisitAt ? c.lastVisitAt.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Aucune visite';
+
+                html += `
+                    <div class="client-card ${isReadyForFree ? 'reward-ready' : ''}">
+                        <div>
+                            <div class="client-header">
+                                <div>
+                                    <h3 class="client-name">${escapeHtml(c.name)}</h3>
+                                    <div class="client-phone">
+                                        <span>📞</span> <a href="tel:${escapeHtml(c.phone)}" style="text-decoration: underline;">${escapeHtml(c.phone)}</a>
+                                    </div>
+                                </div>
+                                <div>
+                                    ${isReadyForFree 
+                                        ? '<span class="badge-reward-ready">🎁 7e Offerte !</span>' 
+                                        : `<span class="badge-progress">${cycle}/6 coiffures</span>`}
+                                </div>
+                            </div>
+
+                            ${c.notes ? `<div class="client-notes">📝 ${escapeHtml(c.notes)}</div>` : ''}
+
+                            <!-- CARTE DE FIDÉLITÉ VISUELLE -->
+                            <div class="loyalty-container">
+                                <div class="loyalty-label">
+                                    <span>Carte Fidélité</span>
+                                    <span style="color: ${isReadyForFree ? '#34D399' : 'var(--gold-light)'};">
+                                        ${isReadyForFree ? '🚨 7ème OFFERTE MAINTENANT !' : (6 - cycle) + ' avant gratuite'}
+                                    </span>
+                                </div>
+                                <div class="loyalty-stamps">
+                                    ${stampsHtml}
+                                </div>
+                            </div>
+
+                            ${isReadyForFree ? `
+                                <div class="alert-free-haircut">
+                                    <span style="font-size: 1.2rem;">✨</span>
+                                    <span>Ce client a fait <strong>6 coiffures</strong>. Sa <strong>7ème est GRATUITE</strong> !</span>
+                                </div>
+                            ` : ''}
+
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between;">
+                                <span>Dernière : <strong>${escapeHtml(c.lastHairstyle || 'N/A')}</strong></span>
+                                <span>${lastDateStr}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="client-actions">
+                                <button type="button" class="btn-primary" onclick="openVisitModal('${c.id}')" style="${isReadyForFree ? 'background: linear-gradient(135deg, #34D399 0%, #10B981 100%) !important; color:#0B0E14 !important;' : ''}">
+                                    ${isReadyForFree ? '🎁 Valider la 7e Gratuite' : '+ Noter Coiffure'}
+                                </button>
+                                <button type="button" class="btn-secondary" onclick="openHistoryModal('${c.id}')">
+                                    Historique
+                                </button>
+                            </div>
+                            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                                <button type="button" class="btn-icon" title="Modifier client" onclick="editClient('${c.id}')">✏️</button>
+                                <button type="button" class="btn-icon" title="Supprimer client" style="color: var(--danger); border-color: rgba(244,63,94,0.3);" onclick="deleteClient('${c.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // --- 5. FILTRES ET RECHERCHE ---
+        document.getElementById('clientSearchInput').addEventListener('input', renderClients);
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-filter');
+                renderClients();
+            });
+        });
+
+        // --- 6. GESTION DU MODAL NOUVEAU / MODIFIER CLIENT ---
+        const clientModal = document.getElementById('clientModal');
+        const openAddClientModalBtn = document.getElementById('openAddClientModalBtn');
+        const closeClientModalBtn = document.getElementById('closeClientModalBtn');
+        const clientForm = document.getElementById('clientForm');
+        const clientModalTitle = document.getElementById('clientModalTitle');
+        const clientModalMessage = document.getElementById('clientModalMessage');
+
+        openAddClientModalBtn.addEventListener('click', () => {
+            document.getElementById('clientId').value = '';
+            document.getElementById('clientNameInput').value = '';
+            document.getElementById('clientPhoneInput').value = '';
+            document.getElementById('clientNotesInput').value = '';
+            clientModalTitle.innerText = "Nouveau Client";
+            clientModalMessage.textContent = '';
+            clientModal.style.display = 'block';
+            document.getElementById('clientNameInput').focus();
+        });
+
+        closeClientModalBtn.addEventListener('click', () => {
+            clientModal.style.display = 'none';
+        });
+
+        clientForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clientModalMessage.style.color = 'var(--text-muted)';
+            clientModalMessage.textContent = 'Enregistrement en cours...';
+
+            const id = document.getElementById('clientId').value;
+            const name = document.getElementById('clientNameInput').value.trim();
+            const phone = document.getElementById('clientPhoneInput').value.trim();
+            const notes = document.getElementById('clientNotesInput').value.trim();
+
+            if (!name || !phone) {
+                clientModalMessage.style.color = 'var(--danger)';
+                clientModalMessage.textContent = 'Veuillez remplir le nom et le téléphone.';
+                return;
+            }
+
+            try {
+                if (id) {
+                    await db.collection("clients").doc(id).update({
+                        name: name,
+                        phone: phone,
+                        notes: notes,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    await db.collection("clients").add({
+                        name: name,
+                        phone: phone,
+                        notes: notes,
+                        totalVisits: 0,
+                        currentCycleVisits: 0,
+                        freeHairstylesEarned: 0,
+                        lastVisitAt: null,
+                        lastHairstyle: '',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                clientModal.style.display = 'none';
+                clientForm.reset();
+                await loadClients();
+            } catch (err) {
+                clientModalMessage.style.color = 'var(--danger)';
+                clientModalMessage.textContent = `Erreur: ${err.message}`;
+            }
+        });
+
+        window.editClient = function(id) {
+            const client = allClients.find(c => c.id === id);
+            if (!client) return;
+
+            document.getElementById('clientId').value = client.id;
+            document.getElementById('clientNameInput').value = client.name;
+            document.getElementById('clientPhoneInput').value = client.phone;
+            document.getElementById('clientNotesInput').value = client.notes || '';
+            clientModalTitle.innerText = "Modifier le Client";
+            clientModalMessage.textContent = '';
+            clientModal.style.display = 'block';
+        };
+
+        window.deleteClient = async function(id) {
+            const client = allClients.find(c => c.id === id);
+            if (!client) return;
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le client "${client.name}" et son historique ?`)) {
+                try {
+                    await db.collection("clients").doc(id).delete();
+                    await loadClients();
+                } catch (err) {
+                    alert(`Erreur lors de la suppression: ${err.message}`);
+                }
+            }
+        };
+
+        // --- 7. GESTION DU MODAL "NOTER UNE COIFFURE" & RÈGLE DE LA 7ÈME GRATUITE ---
+        const visitModal = document.getElementById('visitModal');
+        const closeVisitModalBtn = document.getElementById('closeVisitModalBtn');
+        const visitForm = document.getElementById('visitForm');
+        const visitModalMessage = document.getElementById('visitModalMessage');
+        const visitRewardBanner = document.getElementById('visitRewardBanner');
+        const visitIsFreeCheckbox = document.getElementById('visitIsFreeCheckbox');
+        const visitPriceInput = document.getElementById('visitPriceInput');
+
+        // Réglage du prix quand la case gratuite est cochée
+        visitIsFreeCheckbox.addEventListener('change', () => {
+            if (visitIsFreeCheckbox.checked) {
+                visitPriceInput.value = 0;
+                visitPriceInput.disabled = true;
+            } else {
+                visitPriceInput.disabled = false;
+            }
+        });
+
+        window.selectQuickHairstyle = function(name) {
+            document.getElementById('visitHairstyleInput').value = name;
+        };
+
+        window.openVisitModal = function(clientId) {
+            const client = allClients.find(c => c.id === clientId);
+            if (!client) return;
+
+            document.getElementById('visitClientId').value = client.id;
+            document.getElementById('visitClientNameDisplay').innerText = `${client.name} (${client.phone})`;
+            
+            const isReady = (client.currentCycleVisits === 6);
+            if (isReady) {
+                visitRewardBanner.style.display = 'flex';
+                document.getElementById('visitClientCycleDisplay').innerHTML = `
+                    <span style="color:#34D399; font-weight:700;">Progression : 6 coiffures faites &rarr; 7ème OFFERTE MAINTENANT !</span>`;
+                visitIsFreeCheckbox.checked = true;
+                visitPriceInput.value = 0;
+                visitPriceInput.disabled = true;
+            } else {
+                visitRewardBanner.style.display = 'none';
+                document.getElementById('visitClientCycleDisplay').innerHTML = `
+                    Progression : <strong>${client.currentCycleVisits}/6 coiffures faites</strong>. Encore ${6 - client.currentCycleVisits} avant la coiffure gratuite.`;
+                visitIsFreeCheckbox.checked = false;
+                visitPriceInput.disabled = false;
+                visitPriceInput.value = '';
+            }
+
+            // Date du jour par défaut
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('visitDateInput').value = today;
+
+            document.getElementById('visitHairstyleInput').value = '';
+            document.getElementById('visitStylistInput').value = '';
+            visitModalMessage.textContent = '';
+            visitModal.style.display = 'block';
+            document.getElementById('visitHairstyleInput').focus();
+        };
+
+        closeVisitModalBtn.addEventListener('click', () => {
+            visitModal.style.display = 'none';
+        });
+
+        visitForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            visitModalMessage.style.color = 'var(--text-muted)';
+            visitModalMessage.textContent = 'Enregistrement en cours...';
+
+            const clientId = document.getElementById('visitClientId').value;
+            const hairstyle = document.getElementById('visitHairstyleInput').value.trim();
+            const dateStr = document.getElementById('visitDateInput').value;
+            const isFree = visitIsFreeCheckbox.checked;
+            const price = isFree ? 0 : Number(document.getElementById('visitPriceInput').value || 0);
+            const stylist = document.getElementById('visitStylistInput').value.trim();
+
+            if (!hairstyle || !dateStr) {
+                visitModalMessage.style.color = 'var(--danger)';
+                visitModalMessage.textContent = 'Veuillez saisir la coiffure et la date.';
+                return;
+            }
+
+            const client = allClients.find(c => c.id === clientId);
+            if (!client) return;
+
+            try {
+                const visitDate = new Date(dateStr + "T12:00:00");
+
+                // 1. Enregistrer la visite dans la sous-collection du client
+                await db.collection("clients").doc(clientId).collection("visits").add({
+                    hairstyle: hairstyle,
+                    price: price,
+                    isFreeReward: isFree,
+                    stylist: stylist,
+                    date: firebase.firestore.Timestamp.fromDate(visitDate),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    recordedBy: auth.currentUser.uid
+                });
+
+                // 2. Calcul du nouveau cycle :
+                // Si la coiffure était la 7ème offerte (ou isFree), on valide et on redémarre un cycle à 0 !
+                // Sinon on incrémente de 1.
+                let newCycle = client.currentCycleVisits + 1;
+                let newFreeEarned = client.freeHairstylesEarned;
+
+                if (isFree || client.currentCycleVisits >= 6) {
+                    newCycle = 0; // Le cycle de 7 est complété, nouveau cycle repart à 0 !
+                    newFreeEarned += 1;
+                }
+
+                await db.collection("clients").doc(clientId).update({
+                    totalVisits: firebase.firestore.FieldValue.increment(1),
+                    currentCycleVisits: newCycle,
+                    freeHairstylesEarned: newFreeEarned,
+                    lastVisitAt: firebase.firestore.Timestamp.fromDate(visitDate),
+                    lastHairstyle: hairstyle,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Message de confirmation & fermeture
+                visitModal.style.display = 'none';
+                visitForm.reset();
+                await loadClients();
+
+                if (isFree) {
+                    alert(`🎉 La 7ème coiffure offerte a été enregistrée avec succès pour ${client.name} ! Son nouveau cycle de fidélité commence.`);
+                }
+            } catch (err) {
+                visitModalMessage.style.color = 'var(--danger)';
+                visitModalMessage.textContent = `Erreur: ${err.message}`;
+            }
+        });
+
+        // --- 8. HISTORIQUE COMPLET DES COIFFURES DU CLIENT ---
+        const historyModal = document.getElementById('historyModal');
+        const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
+
+        closeHistoryModalBtn.addEventListener('click', () => {
+            historyModal.style.display = 'none';
+        });
+
+        window.openHistoryModal = async function(clientId) {
+            const client = allClients.find(c => c.id === clientId);
+            if (!client) return;
+
+            document.getElementById('historyModalTitle').innerText = `Historique : ${client.name}`;
+            document.getElementById('historyClientSubtitle').innerText = `Téléphone : ${client.phone} | Total visites : ${client.totalVisits} | Coiffures offertes : ${client.freeHairstylesEarned}`;
+            
+            const container = document.getElementById('historyTableContainer');
+            container.innerHTML = `<p style="padding: 20px; color: var(--text-muted);">Chargement de l'historique...</p>`;
+            historyModal.style.display = 'block';
+
+            try {
+                const snap = await db.collection("clients").doc(clientId).collection("visits").orderBy("date", "desc").get();
+                
+                if (snap.empty) {
+                    container.innerHTML = `<p style="padding: 24px; text-align: center; color: var(--text-muted);">Aucune coiffure enregistrée pour le moment.</p>`;
+                    return;
+                }
+
+                let html = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Coiffure</th>
+                                <th>Prix</th>
+                                <th>Coiffeuse</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                snap.forEach(doc => {
+                    const v = doc.data();
+                    const d = v.date ? v.date.toDate().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '--';
+                    const isFree = v.isFreeReward;
+                    
+                    html += `
+                        <tr>
+                            <td style="color: var(--text-muted);">${d}</td>
+                            <td style="font-weight: 700; color: var(--text-primary);">${escapeHtml(v.hairstyle || 'Coiffure')}</td>
+                            <td style="font-weight: 700; color: ${isFree ? '#34D399' : 'var(--gold-light)'};">
+                                ${isFree ? 'OFFERTE (0 F)' : Number(v.price || 0).toLocaleString('fr-FR') + ' FCFA'}
+                            </td>
+                            <td>${escapeHtml(v.stylist || 'Non précisé')}</td>
+                            <td>
+                                ${isFree 
+                                    ? '<span style="display:inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #34D399;">🎁 7e Offerte</span>' 
+                                    : '<span style="display:inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; background: rgba(255,255,255,0.05); color: var(--text-secondary);">Payante</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = `<p style="color: var(--danger); padding: 20px;">Erreur de chargement: ${err.message}</p>`;
+            }
+        };
+
+        // Fermeture des modales par clic extérieur
+        window.addEventListener('click', (e) => {
+            if (e.target === clientModal) clientModal.style.display = 'none';
+            if (e.target === visitModal) visitModal.style.display = 'none';
+            if (e.target === historyModal) historyModal.style.display = 'none';
+        });
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

@@ -23,6 +23,11 @@
 
                     <li class="nav-separator"></li>
                     
+                    <li class="nav-header">Clients & Fidélité</li>
+                    <li class="nav-item sub-item"><a href="clients.html">Clients &amp; Programme Fidélité</a></li>
+
+                    <li class="nav-separator"></li>
+                    
                     <li class="nav-header">Catalogue & Entrées</li>
                     <li class="nav-item sub-item" id="openSaleModalLink"><a href="#">Saisie des Entrées</a></li> 
                     <li class="nav-item sub-item" id="openCategoryModalLink"><a href="#">Gérer les Catégories</a></li> 
@@ -43,7 +48,21 @@
 
         <main class="main-content">
             <header class="header-bar">
-                <h1>Synthèse Globale du Mois</h1>
+                <div>
+                    <span style="color: var(--gold); font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px;">Tableau de Bord Administratif</span>
+                    <h1>Synthèse Globale du Mois</h1>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <a href="clients.html" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px;">
+                        👥 Clients &amp; Fidélité (6+1)
+                    </a>
+                    <button type="button" class="btn-primary" onclick="document.getElementById('openSaleModalLink').click();">
+                        + Saisie Vente
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="document.getElementById('openTransactionHistory').click();">
+                        Historique
+                    </button>
+                </div>
             </header>
 
             <section class="kpi-grid">
@@ -208,7 +227,7 @@
 
         const START_OF_MONTH = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         const CHART_COLORS = [
-            '#D4AF37', '#111111', '#FFFFFF'
+            '#D4AF37', '#10B981', '#38BDF8', '#F59E0B', '#A855F7', '#EC4899', '#6366F1'
         ];
         
         // --- LISTE DES CATÉGORIES À TARIFICATION MANUELLE (Nom + Prix) ---
@@ -581,7 +600,7 @@
                 labels: ['Entrées (Ventes)', 'Dépenses'],
                 datasets: [{
                     data: [totalSales, totalExpenses],
-                    backgroundColor: ['#D4AF37', '#111111'],
+                    backgroundColor: ['#10B981', '#F43F5E'],
                     hoverOffset: 4
                 }]
             };
@@ -593,11 +612,11 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { color: 'white' } },
+                        legend: { position: 'top', labels: { color: '#CBD5E1' } },
                         title: { 
                             display: true, 
                             text: `Bénéfice Brut: ${profit.toLocaleString('fr-FR')} FCFA`, 
-                            color: profit >= 0 ? '#D4AF37' : '#111111'
+                            color: profit >= 0 ? '#10B981' : '#F43F5E'
                         }
                     }
                 }
@@ -728,15 +747,24 @@
             transactions.forEach(t => {
                 const amountClass = t.amount >= 0 ? 'text-positive' : 'text-negative';
                 const dateString = t.date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+                const typeBadge = t.type.includes('Entrée') 
+                    ? '<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; background:var(--success-bg); color:#34D399;">Entrée</span>'
+                    : '<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; background:var(--danger-bg); color:#FB7185;">Dépense</span>';
+                
+                const methodBadge = t.method === 'Cash'
+                    ? '<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; background:var(--success-bg); color:#34D399;">Cash</span>'
+                    : (t.method === 'Mobile Money' ? '<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; background:var(--info-bg); color:#38BDF8;">Mobile Money</span>'
+                    : (t.method === 'Orange Money' ? '<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; background:rgba(245,158,11,0.15); color:#F59E0B;">Orange Money</span>'
+                    : `<span style="color:var(--text-muted); font-size:0.8rem;">${t.method}</span>`));
                 
                 html += `
                     <tr>
-                        <td>${dateString}</td>
-                        <td style="font-weight: bold; color: ${t.type.includes('Entrée') ? '#D4AF37' : '#111111'};">${t.type}</td>
-                        <td>${t.name}</td>
-                        <td>${t.category}</td>
-                        <td>${t.method}</td>
-                        <td class="${amountClass}" style="text-align: right;">${t.amount.toLocaleString('fr-FR')}</td>
+                        <td style="color: var(--text-muted);">${dateString}</td>
+                        <td>${typeBadge}</td>
+                        <td style="font-weight: 600; color: var(--text-primary);">${t.name}</td>
+                        <td><span style="display:inline-block; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.04); font-size:0.82rem; color:var(--text-secondary);">${t.category}</span></td>
+                        <td>${methodBadge}</td>
+                        <td class="${amountClass}" style="text-align: right; font-weight: 700;">${t.amount.toLocaleString('fr-FR')} FCFA</td>
                     </tr>`;
             });
 

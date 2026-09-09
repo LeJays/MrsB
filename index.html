@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mrs. B - Connexion</title>
+    <title>Mrs. B</title>
+    <meta name="description" content="Système de gestion et caisse pour le salon Mrs. B (authentification, tableau de bord, caisse, finance et rapports statistiques).">
+    <meta property="og:title" content="Mrs. B">
+    <meta property="og:description" content="Système de gestion et caisse pour le salon Mrs. B (authentification, tableau de bord, caisse, finance et rapports statistiques).">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-page">
@@ -15,15 +18,23 @@
         </div>
         
         <h2>Accès Connexion</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: -6px; margin-bottom: 8px;">Salon &amp; Institut de Beauté</p>
 
         <form id="loginForm">
-            <input type="email" id="email" placeholder="Email / Identifiant" required>
-            <input type="password" id="password" placeholder="Mot de passe" required>
+            <div>
+                <label for="email" style="display: block; margin-bottom: 6px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Identifiant / Email</label>
+                <input type="email" id="email" placeholder="nom@exemple.com" required autocomplete="username">
+            </div>
+            <div>
+                <label for="password" style="display: block; margin-bottom: 6px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Mot de passe</label>
+                <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+            </div>
             
             <button type="submit">Se Connecter</button>
         </form>
-        
-        <p id="message" style="color: #111111; margin-top: 10px;"></p>
+
+        <p class="login-prompt">Nouveau membre du personnel ? <a href="register.html">Créer un compte</a></p>
+        <p id="message" style="color: var(--danger); margin-top: 12px;"></p>
 
     </div>
 

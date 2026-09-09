@@ -19,6 +19,7 @@
                 <ul>
                     <li class="nav-header">Tableau de Bord</li>
                     <li class="nav-item sub-item"><a href="dashboard.html">Synthèse Globale</a></li>
+                    <li class="nav-item sub-item"><a href="clients.html">Clients &amp; Fidélité</a></li>
                     
                     <li class="nav-separator"></li>
                     
@@ -118,7 +119,7 @@ let selectedEndDate;
 
         const START_OF_MONTH = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         const CHART_COLORS = [
-            '#D4AF37', '#111111', '#FFFFFF'
+            '#D4AF37', '#10B981', '#38BDF8', '#F59E0B', '#A855F7', '#EC4899', '#6366F1'
         ];
 
         function initMonthPicker() {
@@ -471,11 +472,7 @@ function renderExpenseTable(data, total) {
                     labels: types,
                     datasets: [{
                         data: amounts,
-                        backgroundColor: [
-                            '#111111',
-                            '#D4AF37',
-                            '#FFFFFF'
-                        ]
+                        backgroundColor: CHART_COLORS.slice(0, types.length)
                     }]
                 },
                 options: {
@@ -486,7 +483,7 @@ function renderExpenseTable(data, total) {
         legend: {
             position: 'bottom', // 🔥 IMPORTANT (au lieu de right)
             labels: {
-                color: 'white',
+                color: '#CBD5E1',
                 boxWidth: 15
             }
         },
@@ -495,7 +492,7 @@ function renderExpenseTable(data, total) {
                 label: function(context) {
                     let value = context.raw;
                     let percent = ((value / totalExpenses) * 100).toFixed(1);
-                    return `${value.toLocaleString()} FCFA (${percent}%)`;
+                    return `${value.toLocaleString('fr-FR')} FCFA (${percent}%)`;
                 }
             }
         }
@@ -530,15 +527,19 @@ function renderExpenseTable(data, total) {
             
             // Affichage dans la carte "Bénéfice Brut Opérationnel"
             const summaryElement = document.getElementById('operatingProfitSummary');
-                const color = operatingProfit >= 0 ? '#D4AF37' : '#111111';
+            const color = operatingProfit >= 0 ? '#34D399' : '#FB7185';
             
             summaryElement.innerHTML = `
-                <h4 style="color: #ccc; margin-bottom: 5px;">Total Entrées (Ventes)</h4>
-                <p style="font-size: 1.5em; font-weight: bold; color: #D4AF37;">${totalRevenue.toLocaleString('fr-FR')} FCFA</p>
-                <h4 style="color: #ccc; margin-top: 15px; margin-bottom: 5px;">Total Sorties (Dépenses)</h4>
-                <p style="font-size: 1.5em; font-weight: bold; color: #111111;">${totalExpenses.toLocaleString('fr-FR')} FCFA</p>
-                <h4 style="color: #ccc; margin-top: 25px; margin-bottom: 5px;">Bénéfice Brut</h4>
-                <p style="font-size: 2em; font-weight: bold; color: ${color};">${operatingProfit.toLocaleString('fr-FR')} FCFA</p>
+                <div style="padding: 8px 0;">
+                    <h4 style="color: var(--text-muted); margin-bottom: 4px; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px;">Total Entrées (Ventes)</h4>
+                    <p style="font-size: 1.4em; font-weight: bold; color: var(--gold-light); margin: 0 0 16px 0;">${totalRevenue.toLocaleString('fr-FR')} FCFA</p>
+                    <h4 style="color: var(--text-muted); margin-bottom: 4px; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px;">Total Sorties (Dépenses)</h4>
+                    <p style="font-size: 1.4em; font-weight: bold; color: #FB7185; margin: 0 0 16px 0;">${totalExpenses.toLocaleString('fr-FR')} FCFA</p>
+                    <div style="padding-top: 12px; border-top: 1px solid var(--border-light);">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 4px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Bénéfice Brut</h4>
+                        <p style="font-size: 1.8em; font-weight: 800; color: ${color}; margin: 0;">${operatingProfit.toLocaleString('fr-FR')} FCFA</p>
+                    </div>
+                </div>
             `;
 
             // 3. Préparer les données pour le graphique de Flux de Trésorerie
@@ -574,12 +575,12 @@ function renderExpenseTable(data, total) {
                         {
                             label: 'Entrées (Ventes)',
                             data: [totalRevenue],
-                            backgroundColor: '#D4AF37',
+                            backgroundColor: '#10B981',
                         },
                         {
                             label: 'Sorties (Dépenses)',
                             data: [totalExpenses * -1], // Afficher les dépenses en négatif pour le graphique
-                            backgroundColor: '#111111',
+                            backgroundColor: '#F43F5E',
                         },
                     ]
                 },
